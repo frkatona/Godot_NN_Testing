@@ -4,15 +4,22 @@ extends Node
 @onready var pole = $"../Pole"
 @onready var label_time = $"../CanvasLayer/UI/LabelTime"
 @onready var label_highscore = $"../CanvasLayer/UI/LabelHighScore"
-# @onready var ai_agent = $"../AIAgent" # Will be added later
+@onready var ai_agent = $"../AIAgent"
 
 var time_elapsed: float = 0.0
 var high_score: float = 0.0
 var is_game_over: bool = false
 var max_angle: float = 60.0 # degrees
 
+const GraphScript = preload("res://scripts/ui/performance_graph.gd")
+var stats_graph: Control
+var label_gen: Label
+
 var wind_noise: FastNoiseLite
 var wind_strength: float = 300.0
+var noise_freq: float = 0.1
+var wind_vis: Node2D
+const WindVisualizerScript = preload("res://scripts/visuals/wind_visualizer.gd")
 
 func _ready():
 	wind_noise = FastNoiseLite.new()
@@ -20,7 +27,50 @@ func _ready():
 	wind_noise.frequency = 0.5
 	wind_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
 	
+	wind_vis = WindVisualizerScript.new()
+	add_child(wind_vis)
+	
+	setup_ui()
 	reset_game()
+
+func setup_ui():
+	# Create Gen Label
+	label_gen = Label.new()
+	label_gen.text = "Gen: 1"
+	label_gen.position = Vector2(20, 100) # Below scores
+	label_time.get_parent().add_child(label_gen)
+	
+	# Create Graph
+	stats_graph = GraphScript.new()
+	stats_graph.position = Vector2(20, 140)
+	label_time.get_parent().add_child(stats_graph)
+	
+	# Create Exploration Slider
+	var slider = HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 2.0
+	slider.step = 0.1
+	slider.value = 0.4 # Default
+	slider.custom_minimum_size = Vector2(200, 20)
+	slider.position = Vector2(20, 260)
+	label_time.get_parent().add_child(slider)
+	
+	var label_slider = Label.new()
+	label_slider.text = "Exploration: 0.4"
+	label_slider.position = Vector2(20, 240)
+	label_time.get_parent().add_child(label_slider)
+	
+	slider.value_changed.connect(func(val):
+		if ai_agent:
+			ai_agent.mutation_power = val
+		label_slider.text = "Exploration: %.1f" % val
+	)
+
+func update_stats(history: Array, gen: int):
+	if label_gen:
+		label_gen.text = "Gen: %d" % gen
+	if stats_graph:
+		stats_graph.update_data(history)
 
 func _physics_process(delta):
 	if is_game_over:
@@ -28,8 +78,11 @@ func _physics_process(delta):
 		
 	# Apply Wind
 	# Use time_elapsed for continuity, but maybe seed offset
-	var noise_val = wind_noise.get_noise_1d(time_elapsed * 10.0)
+	var noise_val = wind_noise.get_noise_1d(time_elapsed * noise_freq)
 	var force_x = noise_val * wind_strength
+	
+	if wind_vis:
+		wind_vis.update_wind(force_x)
 	
 	# Apply to pole center of mass (effectively)
 	pole.apply_force(Vector2(force_x, 0))

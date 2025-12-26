@@ -39,7 +39,7 @@ func _draw():
 	for i in range(network.weights.size()):
 		var w_matrix = network.weights[i]
 		var current_layer_pos = node_positions[i]
-		var next_layer_pos = node_positions[i+1]
+		var next_layer_pos = node_positions[i + 1]
 		
 		for prev in range(w_matrix.cols):
 			for next in range(w_matrix.rows):
@@ -74,3 +74,19 @@ func _draw():
 			
 			draw_circle(pos, radius, Color.BLACK) # Outline
 			draw_circle(pos, radius * 0.8, color)
+			
+			# Draw Labels
+			var label = ""
+			var label_pos = pos + Vector2(0, -15)
+			if i == 0: # Input Layer
+				match j:
+					0: label = "CartX"
+					1: label = "CartV"
+					2: label = "PoleA"
+					3: label = "PoleV"
+			elif i == node_positions.size() - 1: # Output Layer
+				match j:
+					0: label = "Move"
+					
+			if label != "":
+				draw_string(ThemeDB.fallback_font, label_pos, label, HORIZONTAL_ALIGNMENT_CENTER, -1, 12)

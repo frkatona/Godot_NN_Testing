@@ -3,15 +3,19 @@ extends Node
 @onready var cart = $"../Cart"
 @onready var pole = $"../Pole"
 @onready var game_manager = $"../GameManager"
-@onready var visualizer = $"../CanvasLayer/UI/NetworkVisualizer" 
+@onready var visualizer = $"../CanvasLayer/UI/NetworkVisualizer"
 
 var best_network: NeuralNetwork
 var current_network: NeuralNetwork
 
 var best_fitness: float = 0.0
 var generation: int = 1
-var save_path = "user://best_ai.json"
+var save_path = "user://best_ai_v2.json"
 var enabled: bool = true
+var mutation_power: float = 0.4
+
+signal history_updated(history: Array[float], gen: int)
+var fitness_history: Array[float] = []
 
 func _ready():
 	# Network Topology: 
@@ -28,6 +32,7 @@ func _ready():
 		print("Loaded existing network")
 	else:
 		best_network = NeuralNetwork.new(topology)
+		bias_network(best_network)
 		
 	current_network = best_network.copy()
 	
@@ -79,6 +84,10 @@ func _process(delta):
 		game_manager.reset_game()
 
 func evaluate_fitness(fitness: float):
+	fitness_history.append(fitness)
+	history_updated.emit(fitness_history, generation)
+	game_manager.update_stats(fitness_history, generation)
+	
 	print("Gen ", generation, " Fitness: ", fitness, " Best: ", best_fitness)
 	
 	if fitness > best_fitness:
@@ -90,6 +99,21 @@ func evaluate_fitness(fitness: float):
 	# Prepare next agent: (1+1) ES strategy
 	# Always mutate from BEST
 	current_network = best_network.copy()
-	current_network.mutate(0.2, 0.4) # Rate, Magnitude
+	current_network.mutate(0.2, mutation_power) # Rate, Magnitude
 	
 	generation += 1
+
+func bias_network(nn: NeuralNetwork):
+	# Manually set strong weights for Angle -> Move relation
+	# Input 2 (PoleAngle) -> Hidden 0 -> Output 0
+	# Input->Hidden
+	# Row 0 (Hidden node 0), Col 2 (Input node 2)
+	nn.weights[0].set_val(0, 2, 5.0)
+	nn.biases[0].set_val(0, 0, 0.0)
+	
+	# Hidden->Output
+	# Row 0 (Output node 0), Col 0 (Hidden node 0)
+	nn.weights[1].set_val(0, 0, 5.0)
+	nn.biases[1].set_val(0, 0, 0.0)
+	
+	print("Network biased for initial association.")
