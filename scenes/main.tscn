@@ -1,0 +1,132 @@
+[gd_scene load_steps=11 format=3 uid="uid://b8x4x4x4x4x4"]
+
+[ext_resource type="Script" path="res://scripts/cart_controller.gd" id="1_cart"]
+[ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_gm"]
+[ext_resource type="Script" path="res://scripts/ai/agent_neuro.gd" id="1_ai"]
+[ext_resource type="Script" path="res://scripts/ui_manager.gd" id="1_ui"]
+[ext_resource type="Script" path="res://scripts/ai/net_visualizer.gd" id="1_vis"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(2000, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cart"]
+size = Vector2(80, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pole"]
+size = Vector2(20, 150)
+
+[node name="Main" type="Node2D"]
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("1_gm")
+
+[node name="AIAgent" type="Node" parent="."]
+script = ExtResource("1_ai")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -200)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(0, 50)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Sprite2D" type="Sprite2D" parent="Floor"]
+scale = Vector2(15.6, 0.15)
+texture = ExtResource("2_icon")
+modulate = Color(0.2, 0.2, 0.2, 1)
+
+[node name="Cart" type="RigidBody2D" parent="."]
+mass = 1.0
+lock_rotation = true
+script = ExtResource("1_cart")
+speed = 2000.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Cart"]
+shape = SubResource("RectangleShape2D_cart")
+
+[node name="Sprite2D" type="Sprite2D" parent="Cart"]
+scale = Vector2(0.625, 0.312)
+texture = ExtResource("2_icon")
+modulate = Color(0.3, 0.6, 1, 1)
+
+[node name="Pole" type="RigidBody2D" parent="."]
+position = Vector2(0, -80)
+mass = 0.5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pole"]
+position = Vector2(0, -65)
+shape = SubResource("RectangleShape2D_pole")
+
+[node name="Sprite2D" type="Sprite2D" parent="Pole"]
+position = Vector2(0, -65)
+scale = Vector2(0.156, 1.17)
+texture = ExtResource("2_icon")
+modulate = Color(1, 0.4, 0.4, 1)
+
+[node name="PinJoint2D" type="PinJoint2D" parent="."]
+node_a = NodePath("../Cart")
+node_b = NodePath("../Pole")
+bias = 0.9
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ui")
+
+[node name="LabelTime" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 46.0
+text = "Time: 0.00"
+
+[node name="LabelHighScore" type="Label" parent="CanvasLayer/UI"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 50.0
+offset_right = 200.0
+offset_bottom = 76.0
+text = "High Score: 0.00"
+
+[node name="Controls" type="HBoxContainer" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -80.0
+offset_right = 100.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
+
+[node name="LeftKey" type="Label" parent="CanvasLayer/UI/Controls"]
+layout_mode = 2
+text = "< LEFT"
+
+[node name="RightKey" type="Label" parent="CanvasLayer/UI/Controls"]
+layout_mode = 2
+text = "RIGHT >"
+
+[node name="NetworkVisualizer" type="Control" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_bottom = 200.0
+grow_horizontal = 0
+script = ExtResource("1_vis")
