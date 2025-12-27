@@ -52,6 +52,8 @@ func map(func_ref: Callable) -> Matrix:
 		result.data[i] = func_ref.call(data[i])
 	return result
 
+## Returns the transpose of the matrix, swapping its rows and columns.
+## This is essential for backpropagation in neural networks and reorienting vectors for dot products.
 func transpose() -> Matrix:
 	var result = Matrix.new(cols, rows)
 	for r in range(rows):
@@ -59,7 +61,9 @@ func transpose() -> Matrix:
 			result.set_val(c, r, get_val(r, c))
 	return result
 
-# Activation functions
+
+## activation functions
+
 static func sigmoid(x: float) -> float:
 	return 1.0 / (1.0 + exp(-x))
 
@@ -76,9 +80,11 @@ static func d_relu(x: float) -> float:
 static func tanh_custom(x: float) -> float:
 	return tanh(x)
 
+## Converts the matrix data into a flat array.
 static func to_array(m: Matrix) -> Array:
 	return m.data.duplicate()
 
+## Creates a matrix of given dimensions from a flat array of values.
 static func from_array(p_rows: int, p_cols: int, arr: Array) -> Matrix:
 	var m = Matrix.new(p_rows, p_cols)
 	for i in range(min(m.data.size(), arr.size())):
