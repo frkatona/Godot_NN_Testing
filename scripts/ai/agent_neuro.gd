@@ -19,8 +19,8 @@ var fitness_history: Array[float] = []
 
 func _ready():
 	# Network Topology: 
-	# Inputs: 5 
-	# [CartX, CartVelX, PoleAngle, PoleAngVel, Bias?]
+	# Inputs: 4
+	# [CartX, CartVelX, PoleAngle, PoleAngVel]
 	# Hidden: 6
 	# Output: 1 (Tanh: -1 Left, 1 Right)
 	var topology: Array[int] = [4, 6, 1]
