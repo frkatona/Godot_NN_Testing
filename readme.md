@@ -1,6 +1,6 @@
-# Godot Neural Networking Playground
+# Pole and Cart - Godot Neural Networking Playground
 
-pole and cart simple feed-forward genetic network test
+simple mutation genetic network test using the 'pole and cart' self-balancing problem
 
 ![pole demo](pole-demo.gif)
 
@@ -10,23 +10,22 @@ pole and cart simple feed-forward genetic network test
 
 ```gdscript
 func _init(p_rows: int, p_cols: int, fill: float = 0.0):
-	rows = p_rows
-	cols = p_cols
-	data = []
-	data.resize(rows * cols)
-	data.fill(fill)
+	'''Initialize new matrix'''
 
-func random(p_rows: int, p_cols: int) -> Matrix
+func random(p_rows: int, p_cols: int) -> Matrix:
+    '''Randomize elements of input matrix -1.0 to 1.0'''
 
-func dot(a: Matrix, b: Matrix) -> Matrix
+func dot(a: Matrix, b: Matrix) -> Matrix:
+    '''Perform matrix multiplication (dot product) between input matrices'''
 
-func add(other: Matrix) -> Matrix
+func add(other: Matrix) -> Matrix:
+    '''Add another matrix to current matrix'''
 
-func map(func_ref: Callable) -> Matrix
+func map(func_ref: Callable) -> Matrix:
+    '''Applies a function to each element of the matrix (enables element-wise operations like activation functions)'''
 
-func transpose() -> Matrix
-
-func tanh_custom(x: float) -> float
+func tanh(x: float) -> float:
+    '''Smoothly compress output to [-1, 1] for activation functions'''
 ```
 
 ### define network properties `scripts/ai/neural_network.gd`
@@ -37,15 +36,15 @@ func _init(sizes: Array[int]):
 	weights = []
 	biases = []
 
-func forward(input_array: Array) -> Array
+func forward(input_array: Array) -> Array:
 
-func mutate(rate: float, magnitude: float)
+func mutate(rate: float, magnitude: float):
 
-func copy() -> NeuralNetwork
+func copy() -> NeuralNetwork:
 
-func save(path: String)
+func save(path: String):
 
-func load_network(path: String) -> NeuralNetwork
+func load_network(path: String) -> NeuralNetwork:
 ```
 
 ### train agent `scripts/ai/agent_neuro.gd`
@@ -130,6 +129,11 @@ func _physics_process(delta):
 
  - [1+1 ES description](https://algorithmafternoon.com/strategies/one_plus_one_evolution_strategy/) on AlgorithmAfternoon
  - Unity official [ML-Agents repo](https://github.com/Unity-Technologies/ml-agents)
+
+## to do
+
+ - improve algorithm
+   - 1+1 ES is slow and doesn't explore the possibility space effectively "\[d\]ue to its single-solution nature and simple mutation operator"
 
 ## don't worry about this section (gh md syntax playground)
 
