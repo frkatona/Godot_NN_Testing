@@ -1,12 +1,12 @@
 # Pole and Cart - Godot Neural Networking Playground
 
-simple mutation genetic network test using the 'pole and cart' self-balancing problem
+simple mutation genetic network test using the 'pole and cart' self-balancing problem in Godot
 
 ![pole demo](pole-demo.gif)
 
 ## Overview
 
-### Define matrices and their behavior (+ activation functions) with `scripts/math/matrix.gd`
+### Define matrix behavior (+ activation functions) with `scripts/math/matrix.gd`
 
 ```gdscript
 func _init(p_rows: int, p_cols: int, fill: float = 0.0):
@@ -32,19 +32,22 @@ func tanh(x: float) -> float:
 
 ```gdscript
 func _init(sizes: Array[int]):
+	'''Initialize new network'''
 	layer_sizes = sizes
 	weights = []
 	biases = []
 
 func forward(input_array: Array) -> Array:
+	'''Forward pass through the network - returns output array'''
 
 func mutate(rate: float, magnitude: float):
-
-func copy() -> NeuralNetwork:
+	'''Change weights and biases between generations'''
 
 func save(path: String):
+	'''Save parameters to file (for storing the current best-performing network)'''
 
 func load_network(path: String) -> NeuralNetwork:
+	'''Load parameters from file (for loading the current best-performing network)'''
 ```
 
 ### Train agent with `scripts/ai/agent_neuro.gd`
