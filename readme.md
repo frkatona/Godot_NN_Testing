@@ -8,6 +8,8 @@ simple mutation genetic network test using the 'pole and cart' self-balancing pr
 
 ### Define matrix behavior (+ activation functions) with `scripts/math/matrix.gd`
 
+probably better to use the built-in matrix math ([docs](https://docs.godotengine.org/en/stable/tutorials/math/vector_math.html)), but Gemini wanted to build its own Matrix class, so that's cool
+
 ```gdscript
 func _init(p_rows: int, p_cols: int, fill: float = 0.0):
 	'''Initialize new matrix'''
