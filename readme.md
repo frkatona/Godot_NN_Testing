@@ -1,8 +1,12 @@
 # Pole and Cart - Godot Neural Networking Playground
 
-simple mutation genetic network test using the 'pole and cart' self-balancing problem in Godot
+simple mutation genetic network test using the 'pole and cart' self-balancing problem, implemented in Godot
 
-![pole demo](pole-demo.gif)
+### generation ~200
+![alt text](export/early-gen.gif)
+
+### generation ~1000
+![alt text](export/late-gen.gif)
 
 ## Overview
 
@@ -137,6 +141,9 @@ func _physics_process(delta):
 
 ## to do
 
+ - fixes
+   - save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
+   - make wind particles look good
  - improve algorithm
    - 1+1 ES is slow and doesn't explore the possibility space effectively "\[d\]ue to its single-solution nature and simple mutation operator"
 
