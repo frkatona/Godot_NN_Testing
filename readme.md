@@ -10,7 +10,7 @@ simple mutation genetic network test using the 'pole and cart' self-balancing pr
 
 ## Overview
 
-### Define matrix behavior (+ activation functions) with `scripts/math/matrix.gd`
+### 1) Define matrix behavior (+ activation functions) with `scripts/math/matrix.gd`
 
 probably better to use the built-in matrix math ([docs](https://docs.godotengine.org/en/stable/tutorials/math/vector_math.html)), but Gemini wanted to build its own Matrix class, so that's cool
 
@@ -34,7 +34,7 @@ func tanh(x: float) -> float:
     '''Smoothly compress output to [-1, 1] for activation functions'''
 ```
 
-### Define network properties with `scripts/ai/neural_network.gd`
+### 2) Define network operations and parameter loading with `scripts/ai/neural_network.gd`
 
 ```gdscript
 func _init(sizes: Array[int]):
@@ -56,7 +56,7 @@ func load_network(path: String) -> NeuralNetwork:
 	'''Load parameters from file (for loading the current best-performing network)'''
 ```
 
-### Train agent with `scripts/ai/agent_neuro.gd`
+### 3) Train agent with `scripts/ai/agent_neuro.gd`
 
  - topology: 
    - 4 x inputs (cart position, cart velocity, pole angle, pole velocity)
@@ -100,7 +100,7 @@ func _process(delta):
 
 ```
 
-### Cart Controller with `scripts/cart_controller.gd`
+### 4) Cart Controller with `scripts/cart_controller.gd`
 
 ```gdscript
 extends RigidBody2D
@@ -113,25 +113,25 @@ func _physics_process(delta):
     apply_force(force)
 ```
 
-### Misc
+### 5) Misc
 
-#### Manage game state with `game_manager.gd`
+#### 5a) Manage game state with `game_manager.gd`
  - Manage other scripts (update UI, handle game over, etc.)
  - Add noise to pole tilt force
     - very light, slow background noise to prevent the model from perfectly balancing the pole
     - used FastNoiseLite for coherence and randi() to seed it to prevent training from accomodating the noise
     - also uses `visuals/wind_visualizer.gd` to make a little particle effect and arrow to illustrate the effect of the noise
 
-#### Network Topology Visualizer with `scripts/ai/network_visualizer.gd`
+#### 5b) Network Topology Visualizer with `scripts/ai/network_visualizer.gd`
  - inputs and outputs are labeled
  - activation of each node is represented with color: black (0), green (+), and red (-)
  - weight magnitudes are represented with thickness and their sign is represented with color: green (+), red (-)
  - biases are excluded for simplicity (I'm sure there's a nice way people represent them somehow)
 
-#### Arrows with `scripts/ui.gd`
+#### 5c) Arrows with `scripts/ui.gd`
  - the agent's input options (move left, move right) light up when the corresponding choice is selected
 
-#### History Graph with `scripts/ai/history_graph.gd`
+#### 5d) History Graph with `scripts/ai/history_graph.gd`
  - graph shows the last 10 generations of fitness
 
 ## resources
