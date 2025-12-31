@@ -33,8 +33,8 @@ func update_wind(force: float):
 	
 	# Update direction and speed
 	particles.direction = Vector2(dir, 0)
-	particles.initial_velocity_min = speed * 0.8
-	particles.initial_velocity_max = speed * 1.2
+	particles.initial_velocity_min = speed * 8.0
+	particles.initial_velocity_max = speed * 12.0
 	
 	# Position emitter
 	# Assuming 0,0 is center of screen. Wind from left spawns at left edge.
@@ -46,7 +46,7 @@ func update_wind(force: float):
 func _draw():
 	# Draw Arrow near top center to indicate wind
 	var start_pos = Vector2(0, -300)
-	var length = wind_force * 0.5 # Scale down for visuals
+	var length = wind_force * 5.0 # Scale down for visuals
 	var end_pos = start_pos + Vector2(length, 0)
 	var color = Color(0.4, 0.8, 1.0, 0.8)
 	
