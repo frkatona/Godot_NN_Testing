@@ -22,7 +22,7 @@ func random(p_rows: int, p_cols: int) -> Matrix:
     '''Randomize elements of input matrix -1.0 to 1.0'''
 
 func dot(a: Matrix, b: Matrix) -> Matrix:
-    '''Perform matrix multiplication (dot product) between input matrices'''
+    '''Determine dot product'''
 
 func add(other: Matrix) -> Matrix:
     '''Add another matrix to current matrix'''
