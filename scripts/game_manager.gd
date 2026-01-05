@@ -16,8 +16,8 @@ var stats_graph: Control
 var label_gen: Label
 
 var wind_noise: FastNoiseLite
-var wind_strength: float = 50.0
-var noise_freq: float = 0.1
+var wind_strength: float = 100.0
+var noise_freq: float = 0.03
 var wind_vis: Node2D
 const WindVisualizerScript = preload("res://scripts/visuals/wind_visualizer.gd")
 
@@ -96,6 +96,10 @@ func _process(delta):
 	time_elapsed += delta
 	label_time.text = "Time: %.2f" % time_elapsed
 	
+	# Early Reset if we beat the high score by 10 seconds (to speed up training)
+	if high_score > 0 and time_elapsed > high_score + 10.0:
+		game_over()
+		
 	check_game_over()
 
 func check_game_over():
