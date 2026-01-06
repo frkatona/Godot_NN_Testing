@@ -1,8 +1,8 @@
-# Pole and Cart - Godot Neural Networking Playground
+# Godot Genetic Mutation Algorithm for Pole-and-Cart Self-Balancing Problem
 
-A simple evolutionary neural network used with the 'pole and cart' self-balancing problem, implemented in Godot.
+A simple evolutionary neural network approach to the 'pole and cart' self-balancing problem, implemented in Godot.
 
-The agent controls a cart with a pole attached to it. The pole can tip forward or backward, and the cart can move left or right to counteract it.  The agent's goal is to keep the pole balanced on top of the cart without tipping over or leaving the screen.  It repeats this process with mild mutations to its reaction algorithm, updating the base parameters each time they are discovered to lead to longer survival.
+The agent controls a cart with a pole attached to it. The pole can tip forward or backward, and the cart can move left or right to counteract it.  The agent's goal is to keep the pole balanced on top of the cart without tipping over or leaving the screen.  It repeats this process with mild mutations to its reaction algorithm, updating the base parameters each time they are found to lead to longer survival.
 
 Mild 'wind' is applied to the pole to prevent the agent from applying the War Games solution.
 
@@ -18,7 +18,7 @@ The wind, along with the state of the network parameters, the performance histor
 
 Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
 
-While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tip while avoiding the accumulation of excessive momentum and overcorrecting.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so it would be difficult for it to infer tick-to-tick where it was in the force-pulsing cycle.
+While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so it becomes difficult for the agent to infer tick-to-tick where it was in a force-pulsing cycle.
 
 ---
 
@@ -40,9 +40,9 @@ $$b_i=  \text{bias vector}$$
 
 is unsupported.  There's a "MatrixCalc" addon in the Asset Library which seems to perform the relevant operations on a compute shader, but I don't feel like messing with that at this stage.
 
-The functions used here are named for the appropriate matrix math operations, but under-the-hood they're just for-loops.
+The functions used here are named for the appropriate matrix math operations, but they are just for-loops under-the-hood.
 
-Tanh is chosen as an appropriate activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  The same activation is applied to the hidden layer activations as well for simplicity.  It is nice that tanh is smooth and differentiable in case backpropagation is desired in the future, though it is not implemented here.
+Tanh is chosen as an activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  For simplicity, the same activation is applied to the hidden layer activations as well.  It is nice that tanh is smooth and differentiable in case backpropagation becomes desirable, though it is not implemented here.
 
 ```gdscript
 func dot(a: Array[float], b: Array[float]) -> float:
@@ -62,7 +62,7 @@ func tanh(x: float) -> float:
 
 In an evolutionary algorithm, the best-performing network is copied to the next generation with a random mutation applied to it (in the form of gentle nudges to the weights and biases).  
 
-There's no method here for estimating fitness or cost, and so these mutations must be random—though their rate (how many parameters are nudged) and magnitude (how much each parameter is nudged) can be adjusted in the code to balance training speed and performance.
+There's no method here for estimating fitness or cost, and so these mutations must be random—though their rate (how many parameters are nudged) and magnitude (how much each parameter is nudged) can be adjusted in the code to allow the algorithm to explore the parameter space more or less aggressively.
 
 ```gdscript
 func forward(input_array: Array) -> Array:
@@ -80,15 +80,15 @@ func load_network(path: String) -> NeuralNetwork:
 
 ### 3) Train agent with `scripts/ai/agent_neuro.gd`
 
-The agent controls a cart with a pole attached to it.  The cart can move left or right, and the pole can tip forward or backward.  The goal is to keep the pole balanced on top of the cart.
+The agent's aim is to keep the pole balanced on top of the cart.  It does this by applying force to the cart to counteract the pole's tilt.  This force is determined by processing the cart's position and velocity, and the pole's angle and velocity at each frame, with a single six-node hidden layerIn summary, the network topology is as follows:
 
-- topology:
-  - 4 x inputs (cart position, cart velocity, pole angle, pole velocity)
-  - 6 x hidden
-  - 1 x output (tanh: -1 left, 1 right)
-- algorithm: 1+1 Evolution Strategy
-  - mutation rate: 0.2
-  - mutation magnitude: 0.1
+- 4 x inputs (cart position, cart velocity, pole angle, pole velocity)
+- 6 x hidden
+- 1 x output (force)
+
+The fitness at each generation is determined by the amount of time before the pole falls off the cart or the cart leaves the screen.  In this implementation, there is no cost determination or reward signal, and so the agent simply explores the parameter space through random mutations.  Once a network achieves a fitness exceeding the previous best, it is saved to a file and used as the starting point for the next generation.
+
+Note that 'generation' here refers to the total number of networks evaluated in a given session rather than the number of times the baseline network has been updated.
 
 ```gdscript
 func _ready():
