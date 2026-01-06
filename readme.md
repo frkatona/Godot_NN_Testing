@@ -27,7 +27,9 @@ While I initially considered the agent to be laughably slow in progress, I reali
 ### 1) Define matrix operations with `scripts/math/matrix.gd`
 
 The Godot engine has some built in matrix math, but not for arbitrary dimensions.  As such, doing the vectorized math for activations in a given layer of a neural network, i.e.,
+
 $$a_i = \phi(Wa_{i-1} + b),$$
+
 $$a_i = \text{activation vector}$$
 
 $$\phi = \text{activation function}$$
