@@ -1,6 +1,6 @@
 # Pole and Cart - Godot Neural Networking Playground
 
-simple mutation genetic network test using the 'pole and cart' self-balancing problem, implemented in Godot
+A simple mutation genetic neural network used with the 'pole and cart' self-balancing problem, implemented in Godot.
 
 ### generation ~200
 ![alt text](export/early-gen.gif)
@@ -12,7 +12,13 @@ simple mutation genetic network test using the 'pole and cart' self-balancing pr
 
 ### 1) Define matrix behavior (+ activation functions) with `scripts/math/matrix.gd`
 
-probably better to use the built-in matrix math ([docs](https://docs.godotengine.org/en/stable/tutorials/math/vector_math.html)), but Gemini wanted to build its own Matrix class.  Probably a lot of the rationale to use matrices is lost by this `for` loop implementation, but I'm not worried about it right now
+The Godot engine has some built in matrix math, but not for arbitrary dimensions.  As such, doing the vectorized math for activations in a given layer of a neural network, i.e.,
+
+$a_i = \phi(Wa_{i-1} + b)$
+
+is unsupported.  There's a "MatrixCalc" addon in the Asset Library which performs the relevant operations on a compute shader, but I ain't messing with that quite yet.
+
+The functions used here are named for their matrix-vector math operations, but under-the-hood they're just for-loops.
 
 ```gdscript
 func _init(p_rows: int, p_cols: int, fill: float = 0.0):
@@ -21,8 +27,8 @@ func _init(p_rows: int, p_cols: int, fill: float = 0.0):
 func random(p_rows: int, p_cols: int) -> Matrix:
     '''Randomize elements of input matrix -1.0 to 1.0'''
 
-func dot(a: Matrix, b: Matrix) -> Matrix:
-    '''Determine dot product'''
+func dot(a: Array[float], b: Array[float]) -> Array[float]:
+    '''Determine the dot product of two arrays'''
 
 func add(other: Matrix) -> Matrix:
     '''Add another matrix to current matrix'''
