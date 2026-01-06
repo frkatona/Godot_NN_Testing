@@ -8,10 +8,6 @@ Mild 'wind' is applied to the pole to prevent the agent from applying the War Ga
 
 The wind, along with the state of the network parameters, the performance history, and the agent's real-time reactions are represented on screen during training.
 
-Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
-
-While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tip while avoiding the accumulation of excessive momentum and overcorrecting.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so it would be difficult for it to infer tick-to-tick where it was in the force-pulsing cycle.
-
 ### generation ~200
 
 ![alt text](export/early-gen.gif)
@@ -20,7 +16,13 @@ While I initially considered the agent to be laughably slow in progress, I reali
 
 ![alt text](export/late-gen.gif)
 
-## Overview
+Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
+
+While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tip while avoiding the accumulation of excessive momentum and overcorrecting.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so it would be difficult for it to infer tick-to-tick where it was in the force-pulsing cycle.
+
+---
+
+## Scripts Overview
 
 ### 1) Define matrix operations with `scripts/math/matrix.gd`
 
@@ -158,10 +160,13 @@ func _physics_process(delta):
 
 - graph shows the last 10 generations of fitness
 
+---
+
 ## resources
 
-- [1+1 ES description](https://algorithmafternoon.com/strategies/one_plus_one_evolution_strategy/) on AlgorithmAfternoon
 - Unity official [ML-Agents repo](https://github.com/Unity-Technologies/ml-agents)
+
+---
 
 ## to do
 
