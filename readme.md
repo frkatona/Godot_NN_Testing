@@ -1,4 +1,4 @@
-# Godot Genetic Mutation Algorithm for Pole-and-Cart Self-Balancing Problem
+# Genetic Mutation Self-Balancing in Godot
 
 A simple evolutionary neural network approach to the 'pole and cart' self-balancing problem, implemented in Godot.
 
@@ -8,13 +8,15 @@ Mild 'wind' is applied to the pole to prevent the agent from applying the War Ga
 
 The wind, along with the state of the network parameters, the performance history, and the agent's real-time reactions are represented on screen during training.
 
-### generation ~200
+### Generation ~200
 
-![alt text](export/early-gen.gif)
+![early gen](export/early-gen.gif)
 
-### generation ~1000
+### Generation ~1000
 
-![alt text](export/late-gen.gif)
+![late gen](export/late-gen.gif)
+
+- *note that the 'generation' counter resets on relaunching the game even though the best parameters persist, so the counters in the gifs are inaccurate*
 
 Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
 
@@ -88,7 +90,9 @@ The agent's aim is to keep the pole balanced on top of the cart.  It does this b
 
 The fitness at each generation is determined by the amount of time before the pole falls off the cart or the cart leaves the screen.  In this implementation, there is no cost determination or reward signal, and so the agent simply explores the parameter space through random mutations.  Once a network achieves a fitness exceeding the previous best, it is saved to a file and used as the starting point for the next generation.
 
-Note that 'generation' here refers to the total number of networks evaluated in a given session rather than the number of times the baseline network has been updated.
+- Note that 'generation' here refers simply to the total number of networks evaluated in a given session rather than the number of updated/improved network baseline parameters.
+
+After evaluating fitness, the game is reset.
 
 ```gdscript
 func _ready():
@@ -125,6 +129,8 @@ func _process(delta):
 ```
 
 ### 4) Cart Controller with `scripts/cart_controller.gd`
+
+The agent's decision, a value from -1 to 1, is split into three discrete states: apply force left, apply force right, or do nothing.
 
 ```gdscript
 extends RigidBody2D
