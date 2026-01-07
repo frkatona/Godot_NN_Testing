@@ -183,7 +183,7 @@ The wind noise started as very mild, low-frequency oscillations to the pole tilt
 
 A forced reset is also implemented here once the agent exceeds the high score by 10 seconds to avoid cases where the agent effectively solves the problem, but never records its parameters because the saving only happens on failure.
 
-#### 5b) Network Topology Visualizer with `scripts/ai/net_visualizer.gd`
+#### 5b) Network Activations Visualizer with `scripts/ai/net_visualizer.gd`
 
 A neural network topology visualizer that shows the network's structure and the activations of its nodes in real time as the agent plays.  
 
@@ -197,7 +197,9 @@ func _draw():
 	'''Calculate node positions, draw and label nodes and edges, change node colors based on activation and edge color/thickness based on weight'''
 ```
 
-Biases are excluded from the illustration for simplicity, though I'm sure there's a nice way to represent them without appearing overcomplicated.
+Biases are excluded for simplicity, though I'm sure there's a nice way to represent them without appearing overcomplicated.
+
+The hidden layer activations still need to be calculated and displayed as well.
 
 #### 5c) Arrows with `scripts/visuals/ui_manager.gd`
 
