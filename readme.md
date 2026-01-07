@@ -69,7 +69,7 @@ Tanh was chosen as an activation function simply because its range conveniently 
 
 In an evolutionary algorithm, the best-performing network is copied to the next generation with a random mutation applied to it (in the form of gentle nudges to the weights and biases).  
 
-There's no method here for estimating fitness or cost, and so these mutations must be random—though their rate (how many parameters are nudged) and magnitude (how much each parameter is nudged) can be adjusted in the code to allow the algorithm to explore the parameter space more or less aggressively.
+There's no method here for estimating fitness or cost, and so these mutations must be random.  The rate (how many parameters are nudged) and magnitude (how much each parameter is nudged) can be modified in the code to allow the algorithm to explore the parameter space more or less aggressively.
 
 ```gdscript
 func forward(input_array: Array) -> Array:
@@ -92,6 +92,9 @@ The agent's aim is to keep the pole balanced on top of the cart.  It does this b
 - 4 x inputs (cart position, cart velocity, pole angle, pole velocity)
 - 6 x hidden
 - 1 x output (force)
+
+![network visualizer](export/network-vis-1.gif)
+- *visualizer code found in scripts/ai/net_visualizer.gd*
 
 The fitness at each generation is determined by the amount of time before the pole falls off the cart or the cart leaves the screen.  In this implementation, there is no cost determination or reward signal, and so the agent simply explores the parameter space through random mutations.  Once a network achieves a fitness exceeding the previous best, it is saved to a file and used as the starting point for the next generation.
 
@@ -198,7 +201,9 @@ Biases are excluded from the illustration for simplicity, though I'm sure there'
 
 #### 5c) Arrows with `scripts/visuals/ui_manager.gd`
 
-- the agent's input options (move left, move right) light up when the corresponding choice is selected
+The agent's input options (move left, move right) light up when the corresponding choice is selected
+
+![left-right arrows](export/left-right.png)
 
 ```gdscript
 func _process(delta):
@@ -209,12 +214,15 @@ func _process(delta):
 
 A performance history visualizer that illustrates the last 10 generations of fitness, as well as the overall average.
 
+![performance graph](export/performance-graph.png)
+
 ```gdscript
 func _ready():
 	custom_minimum_size = Vector2(graph_width, graph_height)
 
 func _draw():
 	'''Determine scale, draw background, polyline, and average'''
+```
 ---
 
 ## resources
@@ -231,7 +239,7 @@ func _draw():
   - save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
   - make wind particles look good
 - improve algorithm
-  - 1+1 ES is slow and doesn't explore the possibility space effectively "\[d\]ue to its single-solution nature and simple mutation operator"
+  - 1+1 ES is slow and doesn't explore the possibility space effectively "due to its single-solution nature and simple mutation operator"
   - should be easy-ish to increment complexity with parents and/or offspring strategies ($\mu + \lambda$)
 - report profiler information for using the network frame to frame
   - consider evaluating the effectiveness of the network when its reaction is inferred every other frame
