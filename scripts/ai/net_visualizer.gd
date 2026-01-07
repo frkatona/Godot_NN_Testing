@@ -73,7 +73,7 @@ func _draw():
 			
 			# Draw Labels
 			var label = ""
-			var label_pos = pos + Vector2(-20, -10)
+			var label_pos = pos + Vector2(-17, -10)
 			if i == 0: # Input Layer
 				match j:
 					0: label = "CartX"

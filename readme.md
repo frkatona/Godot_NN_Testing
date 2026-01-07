@@ -136,6 +136,8 @@ func _process(delta):
 
 ```
 
+The cart's position is considered 0 at the center of the screen to match the symmetry of its fail condition (moving off the screen) with the pole's fail condition (tilting off the cart). 
+
 ### 4) Cart Controller with `scripts/cart_controller.gd`
 
 The agent's decision, a value from -1 to 1, is split into three discrete states — left, right, or nothing — applied to cart's horizontal force as a Godot RigidBody through its `apply_force` method.
@@ -187,7 +189,7 @@ A forced reset is also implemented here once the agent exceeds the high score by
 
 A neural network topology visualizer that shows the network's structure and the activations of its nodes in real time as the agent plays.  
 
-Input and output nodes are labeled, and activations are represented with color: black (0), green (+), and red (-).  Weight magnitudes are represented with thickness and their sign is represented with color: green (+), red (-).
+Input and output nodes are labeled, and all node activations are represented with changing colors: black (0), green (+), and red (-).  Weight magnitudes are represented with thickness and their sign is represented with color: green (+), red (-).
 
 ```gdscript
 func update_network(net: NeuralNetwork, inputs: Array, outputs: Array):
@@ -198,8 +200,6 @@ func _draw():
 ```
 
 Biases are excluded for simplicity, though I'm sure there's a nice way to represent them without appearing overcomplicated.
-
-The hidden layer activations still need to be calculated and displayed as well.
 
 #### 5c) Arrows with `scripts/visuals/ui_manager.gd`
 
@@ -232,6 +232,17 @@ func _draw():
 - Unity official [ML-Agents repo](https://github.com/Unity-Technologies/ml-agents)
 
 - Evolution Strategy [wiki](https://en.wikipedia.org/wiki/Evolution_strategy)
+
+- palette-optimized looping gif ffmpeg commands:
+
+create palette
+```bash
+ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -vf "fps=15,scale=640:-1:flags=lanczos,palettegen" palette.png
+```
+create gif
+```bash
+ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=640:-1:flags=lanczos,paletteuse" -loop 0 output.gif
+```
 
 ---
 

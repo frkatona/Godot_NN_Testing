@@ -16,7 +16,7 @@ var stats_graph: Control
 var label_gen: Label
 
 var wind_noise: FastNoiseLite
-var wind_strength: float = 30.0
+var wind_strength: float = 1.0
 var noise_freq: float = 0.03
 var wind_vis: Node2D
 const WindVisualizerScript = preload("res://scripts/visuals/wind_visualizer.gd")
