@@ -147,7 +147,7 @@ func _physics_process(delta):
     apply_force(force)
 ```
 
-This discretization method is perhaps the most realistic in reflecting the abilities of a mouse-and-keyboard user, but, as noted in the introduction, it likely adds drastic complexity to the problem. When I imagined this problem with continuous force application, I figured that the computer would reach what felt like the obvious solution where the force application decision was basically just anti-proportional to the tilt of the pole. Something a human would code be able to code deterministically with a PID algorithm.
+This discretization method is perhaps the most realistic in reflecting the abilities of a mouse-and-keyboard user, but, as noted in the introduction, it likely adds drastic complexity to the problem. When I imagined this problem with continuous force application, I figured that the computer would reach what felt like the obvious solution where the force application decision was basically just anti-proportional to the tilt of the pole. Something a human would code deterministically with something like a PID algorithm.
 
 With discrete force application, the model must 'pulse' its inputs to temper the counter-force and avoid overcorrecting to failure.
 
