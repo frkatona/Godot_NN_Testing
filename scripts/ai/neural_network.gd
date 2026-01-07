@@ -12,11 +12,11 @@ func _init(sizes: Array[int]):
 	
 	for i in range(sizes.size() - 1):
 		# Weights: rows = next_layer, cols = prev_layer
-		var w = Matrix.random(sizes[i+1], sizes[i])
+		var w = Matrix.random(sizes[i + 1], sizes[i])
 		weights.append(w)
 		
 		# Biases: rows = next_layer, cols = 1
-		var b = Matrix.random(sizes[i+1], 1)
+		var b = Matrix.random(sizes[i + 1], 1)
 		biases.append(b)
 
 func forward(input_array: Array) -> Array:
@@ -39,6 +39,31 @@ func forward(input_array: Array) -> Array:
 			
 	return Matrix.to_array(current)
 
+func forward_all(input_array: Array) -> Array:
+	var activations = []
+	
+	# Input Layer
+	var current = Matrix.from_array(input_array.size(), 1, input_array)
+	activations.append(Matrix.to_array(current))
+	
+	for i in range(weights.size()):
+		var w = weights[i]
+		var b = biases[i]
+		
+		# Z = W * X + B
+		var z = Matrix.dot(w, current)
+		z = z.add(b)
+		
+		# Activate
+		if i == weights.size() - 1:
+			current = z.map(Matrix.tanh_custom)
+		else:
+			current = z.map(Matrix.sigmoid)
+			
+		activations.append(Matrix.to_array(current))
+			
+	return activations
+
 # Mutate function for Neuroevolution/Genetic Algorithm
 func mutate(rate: float, magnitude: float):
 	for w in weights:
@@ -54,13 +79,13 @@ func copy() -> NeuralNetwork:
 	var nn = NeuralNetwork.new(layer_sizes)
 	for i in range(weights.size()):
 		nn.weights[i] = Matrix.from_array(
-			weights[i].rows, 
-			weights[i].cols, 
+			weights[i].rows,
+			weights[i].cols,
 			weights[i].data.duplicate()
 		)
 		nn.biases[i] = Matrix.from_array(
-			biases[i].rows, 
-			biases[i].cols, 
+			biases[i].rows,
+			biases[i].cols,
 			biases[i].data.duplicate()
 		)
 	return nn

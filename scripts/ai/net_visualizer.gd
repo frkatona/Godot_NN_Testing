@@ -1,14 +1,12 @@
 extends Control
 
 var network: NeuralNetwork
-var cached_inputs: Array
-var cached_outputs: Array
+var cached_activations: Array
 var canvas_rect: Rect2
 
-func update_network(net: NeuralNetwork, inputs: Array, outputs: Array):
+func update_network(net: NeuralNetwork, activations: Array):
 	network = net
-	cached_inputs = inputs
-	cached_outputs = outputs
+	cached_activations = activations
 	queue_redraw()
 
 func _draw():
@@ -61,21 +59,21 @@ func _draw():
 			var val = 0.0
 			
 			var color = Color.WHITE
-			if i == 0 and j < cached_inputs.size():
-				var inp = cached_inputs[j]
-				if inp > 0: color = Color(0, inp, 0)
-				else: color = Color(0, 0, -inp)
-			elif i == node_positions.size() - 1 and j < cached_outputs.size():
-				var outp = cached_outputs[j]
-				if outp > 0: color = Color(0, outp, 0)
-				else: color = Color(0, 0, -outp)
+			
+			# Check if we have data for this node
+			if i < cached_activations.size():
+				var layer_vals = cached_activations[i]
+				if j < layer_vals.size():
+					var val_node = layer_vals[j]
+					if val_node > 0: color = Color(0, val_node, 0)
+					else: color = Color(0, 0, -val_node)
 			
 			draw_circle(pos, radius, Color.BLACK) # Outline
 			draw_circle(pos, radius * 0.8, color)
 			
 			# Draw Labels
 			var label = ""
-			var label_pos = pos + Vector2(0, -15)
+			var label_pos = pos + Vector2(-20, -10)
 			if i == 0: # Input Layer
 				match j:
 					0: label = "CartX"

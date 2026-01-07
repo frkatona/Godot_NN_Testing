@@ -62,7 +62,8 @@ func _on_process_frame():
 	]
 	
 	# Forward
-	var output = current_network.forward(inputs)
+	var all_activations = current_network.forward_all(inputs)
+	var output = all_activations.back() # Last layer is output
 	var action_val = output[0] # -1 to 1
 	
 	# Apply to Cart
@@ -71,7 +72,7 @@ func _on_process_frame():
 	
 	# Update Vis
 	if visualizer:
-		visualizer.update_network(current_network, inputs, output)
+		visualizer.update_network(current_network, all_activations)
 
 func _process(delta):
 	if not enabled:

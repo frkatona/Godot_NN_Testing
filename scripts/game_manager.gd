@@ -16,7 +16,7 @@ var stats_graph: Control
 var label_gen: Label
 
 var wind_noise: FastNoiseLite
-var wind_strength: float = 100.0
+var wind_strength: float = 30.0
 var noise_freq: float = 0.03
 var wind_vis: Node2D
 const WindVisualizerScript = preload("res://scripts/visuals/wind_visualizer.gd")
@@ -48,15 +48,15 @@ func setup_ui():
 	# Create Exploration Slider
 	var slider = HSlider.new()
 	slider.min_value = 0.0
-	slider.max_value = 2.0
-	slider.step = 0.1
-	slider.value = 0.4 # Default
+	slider.max_value = 20.0
+	slider.step = 0.2
+	slider.value = 1.0 # Default
 	slider.custom_minimum_size = Vector2(200, 20)
 	slider.position = Vector2(20, 260)
 	label_time.get_parent().add_child(slider)
 	
 	var label_slider = Label.new()
-	label_slider.text = "Exploration: 0.4"
+	label_slider.text = "Exploration: 1.0"
 	label_slider.position = Vector2(20, 240)
 	label_time.get_parent().add_child(label_slider)
 	
