@@ -60,8 +60,6 @@ func _draw():
 			var pos = layer_pos[j]
 			var val = 0.0
 			
-			# Try to visualize activation if possible?
-			# For now just draw white circles, maybe fill based on input/output for first/last
 			var color = Color.WHITE
 			if i == 0 and j < cached_inputs.size():
 				var inp = cached_inputs[j]

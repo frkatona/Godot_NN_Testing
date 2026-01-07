@@ -2,6 +2,10 @@
 
 A simple evolutionary neural network approach to the 'pole and cart' self-balancing problem, implemented in Godot.
 
+---
+
+## Overview
+
 The agent controls a cart with a pole attached to it. The pole can tip forward or backward, and the cart can move left or right to counteract it.  The agent's goal is to keep the pole balanced on top of the cart without tipping over or leaving the screen.  It repeats this process with mild mutations to its reaction algorithm, updating the base parameters each time they are found to lead to longer survival.
 
 Mild 'wind' is applied to the pole to prevent the agent from applying the War Games solution.
@@ -20,11 +24,11 @@ The wind, along with the state of the network parameters, the performance histor
 
 Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
 
-While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so it becomes difficult for the agent to infer tick-to-tick where it was in a force-pulsing cycle.
+While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so to infer a place in the force-pulsing cycle tick-to-tick is impressive.
 
 ---
 
-## Scripts Overview
+## Scripts Description
 
 ### 1) Define matrix operations with `scripts/math/matrix.gd`
 
@@ -82,7 +86,7 @@ func load_network(path: String) -> NeuralNetwork:
 
 ### 3) Train agent with `scripts/ai/agent_neuro.gd`
 
-The agent's aim is to keep the pole balanced on top of the cart.  It does this by applying force to the cart to counteract the pole's tilt.  This force is determined by processing the cart's position and velocity, and the pole's angle and velocity at each frame, with a single six-node hidden layerIn summary, the network topology is as follows:
+The agent's aim is to keep the pole balanced on top of the cart.  It does this by applying force to the cart to counteract the pole's tilt.  This force is determined by processing the cart's position and velocity, and the pole's angle and velocity at each frame, with a single six-node hidden layer.  In summary, the network topology is as follows:
 
 - 4 x inputs (cart position, cart velocity, pole angle, pole velocity)
 - 6 x hidden
@@ -90,7 +94,7 @@ The agent's aim is to keep the pole balanced on top of the cart.  It does this b
 
 The fitness at each generation is determined by the amount of time before the pole falls off the cart or the cart leaves the screen.  In this implementation, there is no cost determination or reward signal, and so the agent simply explores the parameter space through random mutations.  Once a network achieves a fitness exceeding the previous best, it is saved to a file and used as the starting point for the next generation.
 
-- Note that 'generation' here refers simply to the total number of networks evaluated in a given session rather than the number of updated/improved network baseline parameters.
+- *Note that 'generation' here refers simply to the total number of networks evaluated in a given session.  This is in contrast to the perhaps more intuitive usage where a "generation" is the group of mutated agents from which the best is plucked to form the basis for the next generation.*
 
 After evaluating fitness, the game is reset.
 
@@ -130,7 +134,7 @@ func _process(delta):
 
 ### 4) Cart Controller with `scripts/cart_controller.gd`
 
-The agent's decision, a value from -1 to 1, is split into three discrete states: apply force left, apply force right, or do nothing.
+The agent's decision, a value from -1 to 1, is split into three discrete states — left, right, or nothing — applied to cart's horizontal force as a Godot RigidBody through its `apply_force` method.
 
 ```gdscript
 extends RigidBody2D
@@ -143,36 +147,80 @@ func _physics_process(delta):
     apply_force(force)
 ```
 
+This discretization method is perhaps the most realistic in reflecting the abilities of a mouse-and-keyboard user, but, as noted in the introduction, it likely adds drastic complexity to the problem. When I imagined this problem with continuous force application, I figured that the computer would reach what felt like the obvious solution where the force application decision was basically just anti-proportional to the tilt of the pole. Something a human would code be able to code deterministically with a PID algorithm.
+
+With discrete force application, the model must 'pulse' its inputs to temper the counter-force and avoid overcorrecting to failure.
+
 ### 5) Misc
 
 #### 5a) Manage game state with `game_manager.gd`
 
-- Manage other scripts (update UI, handle game over, etc.)
-- Add noise to pole tilt force
-  - very light, slow background noise to prevent the model from perfectly balancing the pole
-  - used FastNoiseLite for coherence and randi() to seed it to prevent training from accomodating the noise
-  - also uses `visuals/wind_visualizer.gd` to make a little particle effect and arrow to illustrate the effect of the noise
+Update UI, handle failure/resetting, and add noise to the pole tilt force.
 
-#### 5b) Network Topology Visualizer with `scripts/ai/network_visualizer.gd`
+```gdscript
+func setup_ui():
+	'''Create labels, graphs, and mutation sliders'''
 
-- inputs and outputs are labeled
-- activation of each node is represented with color: black (0), green (+), and red (-)
-- weight magnitudes are represented with thickness and their sign is represented with color: green (+), red (-)
-- biases are excluded for simplicity (I'm sure there's a nice way people represent them somehow)
+func update_stats(history: Array, gen: int):
+    '''Update labels and graphs'''
 
-#### 5c) Arrows with `scripts/ui.gd`
+func _physics_process(delta):
+    '''Apply wind force to pole'''
+
+func _process(delta):
+    '''Check for failure and reset if necessary'''
+
+    if high_score > 0 and time_elapsed > high_score + 10.0:
+        game_over()
+```
+
+
+The wind noise started as very mild, low-frequency oscillations to the pole tilt force to prevent the model from perfectly balancing the pole (though it has been intensified to challenge the more successful generations).  It uses FastNoiseLite for coherence and randi() to seed it to prevent training from accomodating the noise.  It also uses `visuals/wind_visualizer.gd` to make a little particle effect and arrow to illustrate the effect of the noise
+
+A forced reset is also implemented here once the agent exceeds the high score by 10 seconds to avoid cases where the agent effectively solves the problem, but never records its parameters because the saving only happens on failure.
+
+#### 5b) Network Topology Visualizer with `scripts/ai/net_visualizer.gd`
+
+A neural network topology visualizer that shows the network's structure and the activations of its nodes in real time as the agent plays.  
+
+Input and output nodes are labeled, and activations are represented with color: black (0), green (+), and red (-).  Weight magnitudes are represented with thickness and their sign is represented with color: green (+), red (-).
+
+```gdscript
+func update_network(net: NeuralNetwork, inputs: Array, outputs: Array):
+	'''Accept updated network information from the agent script'''
+
+func _draw():
+	'''Calculate node positions, draw and label nodes and edges, change node colors based on activation and edge color/thickness based on weight'''
+```
+
+Biases are excluded from the illustration for simplicity, though I'm sure there's a nice way to represent them without appearing overcomplicated.
+
+#### 5c) Arrows with `scripts/visuals/ui_manager.gd`
 
 - the agent's input options (move left, move right) light up when the corresponding choice is selected
 
-#### 5d) History Graph with `scripts/ai/history_graph.gd`
+```gdscript
+func _process(delta):
+	'''Modulate left/right arrow color based on agent's active decision'''
+```
 
-- graph shows the last 10 generations of fitness
+#### 5d) Performance History Visualizer with `scripts/ui/performance_graph.gd`
 
+A performance history visualizer that illustrates the last 10 generations of fitness, as well as the overall average.
+
+```gdscript
+func _ready():
+	custom_minimum_size = Vector2(graph_width, graph_height)
+
+func _draw():
+	'''Determine scale, draw background, polyline, and average'''
 ---
 
 ## resources
 
 - Unity official [ML-Agents repo](https://github.com/Unity-Technologies/ml-agents)
+
+- Evolution Strategy [wiki](https://en.wikipedia.org/wiki/Evolution_strategy)
 
 ---
 
@@ -183,3 +231,6 @@ func _physics_process(delta):
   - make wind particles look good
 - improve algorithm
   - 1+1 ES is slow and doesn't explore the possibility space effectively "\[d\]ue to its single-solution nature and simple mutation operator"
+  - should be easy-ish to increment complexity with parents and/or offspring strategies ($\mu + \lambda$)
+- report profiler information for using the network frame to frame
+  - consider evaluating the effectiveness of the network when its reaction is inferred every other frame
