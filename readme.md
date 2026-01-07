@@ -48,8 +48,6 @@ is unsupported.  There's a "MatrixCalc" addon in the Asset Library which seems t
 
 The functions used here are named for the appropriate matrix math operations, but they are just for-loops under-the-hood.
 
-Tanh is chosen as an activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  For simplicity, the same activation is applied to the hidden layer activations as well.  It is nice that tanh is smooth and differentiable in case backpropagation becomes desirable, though it is not implemented here.
-
 ```gdscript
 func dot(a: Array[float], b: Array[float]) -> float:
     '''Determine the dot product of two vectors (for multiplying the weight matrix and the activation vector)'''
@@ -63,6 +61,9 @@ func map(func_ref: Callable) -> Array[float]:
 func tanh(x: float) -> float:
     '''Activation function to smoothly compress output to [-1, 1]'''
 ```
+
+Tanh was chosen as an activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  For simplicity, the same activation is applied to the hidden layer activations as well.  It is nice that tanh is smooth and differentiable in case backpropagation becomes desirable, though it is not implemented here.
+
 
 ### 2) Define network operations with `scripts/ai/neural_network.gd`
 
