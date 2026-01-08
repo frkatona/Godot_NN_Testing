@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://cetxc4hn3iiq" path="res://scripts/ui_manager.gd" id="1_ui"]
 [ext_resource type="Script" uid="uid://j1rpopcwj7w" path="res://scripts/ai/net_visualizer.gd" id="1_vis"]
 [ext_resource type="Texture2D" uid="uid://cbfoaiv84vtf4" path="res://icon.svg" id="2_icon"]
-[ext_resource type="AudioStream" uid="uid://flvbb6aq3dv1" path="res://assets/trudging.wav" id="7_o6xl0"]
+[ext_resource type="AudioStream" uid="uid://flvbb6aq3dv1" path="res://assets/music/trudging.wav" id="7_o6xl0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(2000, 20)

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://flvbb6aq3dv1"
-path="res://.godot/imported/trudging.wav-949235a08c6106ebc29ffbef17553f6a.sample"
+path="res://.godot/imported/trudging.wav-2970dc8d0127efc97315ea8dccac4db6.sample"
 
 [deps]
 
-source_file="res://assets/trudging.wav"
-dest_files=["res://.godot/imported/trudging.wav-949235a08c6106ebc29ffbef17553f6a.sample"]
+source_file="res://assets/music/trudging.wav"
+dest_files=["res://.godot/imported/trudging.wav-2970dc8d0127efc97315ea8dccac4db6.sample"]
 
 [params]
 

@@ -93,7 +93,7 @@ func setup_ui():
 	start_y += spacing
 	
 	# 4. Wind Strength
-	create_slider.call("Wind Str: %.1f", 0.0, 500.0, 1.0, wind_strength, func(v):
+	create_slider.call("Wind Str: %.1f", 0.0, 1000.0, 10.0, wind_strength, func(v):
 		wind_strength = v
 	, start_y)
 	start_y += spacing
@@ -107,7 +107,7 @@ func setup_ui():
 	
 	# 6. Manual Fail Button
 	var fail_btn = Button.new()
-	fail_btn.text = "Fail / Reset"
+	fail_btn.text = "Fail"
 	fail_btn.position = Vector2(20, start_y)
 	fail_btn.custom_minimum_size = Vector2(120, 30)
 	label_time.get_parent().add_child(fail_btn)

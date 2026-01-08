@@ -46,7 +46,7 @@ func update_wind(force: float):
 func _draw():
 	# Draw Arrow near top center to indicate wind
 	var start_pos = Vector2(0, -300)
-	var length = wind_force * 5.0
+	var length = wind_force
 	var end_pos = start_pos + Vector2(length, 0)
 	var color = Color(0.4, 0.8, 1.0, 0.8)
 	
@@ -56,7 +56,8 @@ func _draw():
 	if abs(length) > 10:
 		var dir = Vector2(sign(length), 0)
 		var arrow_size = 15.0
-		var p1 = end_pos - dir * arrow_size + dir.rotated(PI / 2) * (arrow_size * 0.5)
-		var p2 = end_pos - dir * arrow_size + dir.rotated(-PI / 2) * (arrow_size * 0.5)
-		var points = PackedVector2Array([end_pos, p1, p2])
+		var tip_pos = end_pos + dir * arrow_size
+		var p1 = end_pos + dir.rotated(PI / 2) * (arrow_size * 0.5)
+		var p2 = end_pos + dir.rotated(-PI / 2) * (arrow_size * 0.5)
+		var points = PackedVector2Array([tip_pos, p1, p2])
 		draw_colored_polygon(points, color)
