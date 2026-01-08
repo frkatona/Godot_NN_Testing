@@ -47,6 +47,7 @@ func setup_audio():
 	sfx_wind.stream = wind_stream
 	sfx_wind.volume_db = -80.0
 	add_child(sfx_wind)
+	sfx_wind.bus = "Wind"
 	sfx_wind.play()
 	
 	# Fail
@@ -165,12 +166,17 @@ func _physics_process(delta):
 		var wind_ratio = clamp(abs(force_x) / 300, 0.0, 1.0)
 		# -40dB (quiet) to 0dB (loud). -80 is silent.
 		# Let's try dynamic range: -60 minimum, up to 0 max
-		var target_db = lerp(-30.0, 10.0, wind_ratio)
+		var target_db = lerp(-60.0, -20.0, wind_ratio)
 		if wind_ratio < 0.01:
 			target_db = -80.0
 		sfx_wind.volume_db = move_toward(sfx_wind.volume_db, target_db, delta * 30.0)
-	
-	# Apply to pole center of mass (effectively)
+
+		# set the wind mixer bus panner to the opposite direction of wind force
+		var bus_index = AudioServer.get_bus_index("Wind")
+		var effect = AudioServer.get_bus_effect(bus_index, 0)
+		effect.pan = sign(-force_x) * 0.75
+
+	#) Apply to pole center of mass (effectively)
 	pole.apply_force(Vector2(force_x, 0))
 
 func _process(delta):
