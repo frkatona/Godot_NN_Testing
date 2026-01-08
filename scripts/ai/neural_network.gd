@@ -64,6 +64,11 @@ func forward_all(input_array: Array) -> Array:
 			
 	return activations
 
+# Metadata
+var generation_number: int = 1
+var child_number: int = 0
+var best_time: float = 0.0
+
 # Mutate function for Neuroevolution/Genetic Algorithm
 func mutate(rate: float, magnitude: float):
 	for w in weights:
@@ -77,6 +82,10 @@ func mutate(rate: float, magnitude: float):
 
 func copy() -> NeuralNetwork:
 	var nn = NeuralNetwork.new(layer_sizes)
+	nn.generation_number = generation_number
+	nn.child_number = child_number
+	nn.best_time = best_time
+	
 	for i in range(weights.size()):
 		nn.weights[i] = Matrix.from_array(
 			weights[i].rows,
@@ -94,7 +103,10 @@ func save(path: String):
 	var data = {
 		"sizes": layer_sizes,
 		"weights": [],
-		"biases": []
+		"biases": [],
+		"generation_number": generation_number,
+		"child_number": child_number,
+		"best_time": best_time
 	}
 	for w in weights:
 		data["weights"].append(w.data)
@@ -121,6 +133,13 @@ static func load_network(path: String) -> NeuralNetwork:
 		sizes.append(int(s))
 		
 	var nn = NeuralNetwork.new(sizes)
+	
+	if "generation_number" in data:
+		nn.generation_number = int(data["generation_number"])
+	if "child_number" in data:
+		nn.child_number = int(data["child_number"])
+	if "best_time" in data:
+		nn.best_time = float(data["best_time"])
 	
 	for i in range(nn.weights.size()):
 		var w_data = data["weights"][i]

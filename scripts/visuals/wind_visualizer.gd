@@ -46,7 +46,7 @@ func update_wind(force: float):
 func _draw():
 	# Draw Arrow near top center to indicate wind
 	var start_pos = Vector2(0, -300)
-	var length = wind_force * 5.0 # Scale down for visuals
+	var length = wind_force * 5.0
 	var end_pos = start_pos + Vector2(length, 0)
 	var color = Color(0.4, 0.8, 1.0, 0.8)
 	

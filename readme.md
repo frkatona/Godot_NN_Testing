@@ -8,9 +8,9 @@ A simple evolutionary neural network approach to the 'pole and cart' self-balanc
 
 The agent controls a cart with a pole attached to it. The pole can tip forward or backward, and the cart can move left or right to counteract it.  The agent's goal is to keep the pole balanced on top of the cart without tipping over or leaving the screen.  It repeats this process with mild mutations to its reaction algorithm, updating the base parameters each time they are found to lead to longer survival.
 
-Mild 'wind' is applied to the pole to prevent the agent from applying the War Games solution.
+Mild 'wind' is applied to the pole to prevent the agent from discovering the War Games solution.
 
-The wind, along with the state of the network parameters, the performance history, and the agent's real-time reactions are represented on screen during training.
+The wind, along with the state of the network parameters, the performance history, and the agent's real-time reactions are represented on screen during training, alongside a few interactive controls to influence the training if desired.
 
 ### Generation ~200
 
@@ -46,7 +46,7 @@ $$b_i=  \text{bias vector}$$
 
 is unsupported.  There's a "MatrixCalc" addon in the Asset Library which seems to perform the relevant operations on a compute shader, but I don't feel like messing with that at this stage.
 
-The functions used here are named for the appropriate matrix math operations, but they are just for-loops under-the-hood.
+Some of the functions here are named to reflect vectorized matrix operations, but they are all loops under-the-hood.
 
 ```gdscript
 func dot(a: Array[float], b: Array[float]) -> float:
@@ -69,21 +69,44 @@ Tanh was chosen as an activation function simply because its range conveniently 
 
 In an evolutionary algorithm, the best-performing network is copied to the next generation with a random mutation applied to it (in the form of gentle nudges to the weights and biases).  
 
-There's no method here for estimating fitness or cost, and so these mutations must be random.  The rate (how many parameters are nudged) and magnitude (how much each parameter is nudged) can be modified in the code to allow the algorithm to explore the parameter space more or less aggressively.
+There's no method here for estimating fitness or cost, and so these mutations must be random.  The rate (the likelihood for each parameter to be nudged) and magnitude (how far they are nudged) can be modified in the code to allow the algorithm to explore the parameter space more or less aggressively.
 
 ```gdscript
 func forward(input_array: Array) -> Array:
- '''Forward pass through the network (input what the model is allowed to see and output the model's decision/reaction)'''
+ '''Forward pass through the network (input game state, process it, output reaction)'''
 
 func mutate(rate: float):
- '''Nudge weights and biases between generations'''
+ '''Nudge weights and biases between generations at a given mutation rate and magnitude'''
 
 func save(path: String):
- '''Save parameters to file (for storing the current best-performing network)'''
+ '''Save current best-performing network parameters to local storage'''
 
 func load_network(path: String) -> NeuralNetwork:
- '''Load parameters from file (for loading the current best-performing network)'''
+ '''Load best-performing network parameters from local storage (initialize a network if no file is found)'''
 ```
+
+The 'current best' parameters are saved to a .json with the following structure:
+
+```json
+{
+    "generation_number": 1,
+    "child_number": 1,
+    "best_time": 0.0,
+    "sizes": [4, 6, 1],
+    "weights": [
+        [1.5, -2.0, 8.0, -0.5],
+        [2.5, 2.0, -1.0, 5.5]
+    ],
+    "biases": [
+        [-5.0, 5.0, 2.4, 4.9, -0.5, 0.7],
+        [3.1]
+    ]
+}
+```
+
+The script uses the persistent user data directory, `user://` ([docs](https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html#accessing-persistent-user-data-user)), to save and load the parameters.  For me on Windows, this places the file at `C:\Users\me\AppData\Roaming\Godot\userdata\user\best_ai_v2.json`.
+
+An example high-performing network (capable of surviving >10 min) is included in the `export` directory, `best_ai_v2.json`, for reference.  To use it, copy the file into your `user://` directory.  To reset generation progress, delete the save file (from `user://`, not `export`) and run the game.
 
 ### 3) Train agent with `scripts/ai/agent_neuro.gd`
 
@@ -98,7 +121,7 @@ The agent's aim is to keep the pole balanced on top of the cart.  It does this b
 
 The fitness at each generation is determined by the amount of time before the pole falls off the cart or the cart leaves the screen.  In this implementation, there is no cost determination or reward signal, and so the agent simply explores the parameter space through random mutations.  Once a network achieves a fitness exceeding the previous best, it is saved to a file and used as the starting point for the next generation.
 
-- *Note that 'generation' here refers simply to the total number of networks evaluated in a given session.  This is in contrast to the perhaps more intuitive usage where a "generation" is the group of mutated agents from which the best is plucked to form the basis for the next generation.*
+- *Note that 'generation' here refers to the set of networks that has yet to surprass the previous best.  The 'child' of a generation is the final network of that generation, which is used as the starting point for the next.*
 
 After evaluating fitness, the game is reset.
 
@@ -233,29 +256,40 @@ func _draw():
 
 - Evolution Strategy [wiki](https://en.wikipedia.org/wiki/Evolution_strategy)
 
-- current looping gif ffmpeg commands:
+- current 'looping gif' mp4 snip converter ffmpeg commands:
 
 create palette from mp4
 ```bash
-ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -vf "fps=15,scale=640:-1:flags=lanczos,palettegen" palette.png
+ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -vf "fps=15,scale=640:-1:flags=lanczos,palettegen" palette.png
 ```
-create gif from palette and mp4 (15 fps, looping)
+create gif from palette and mp4 (10 sec, 15 fps, looping)
 ```bash
-ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=640:-1:flags=lanczos,paletteuse" -loop 0 output.gif
+ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=640:-1:flags=lanczos,paletteuse" -loop 0 output.gif
 ```
 
 ---
 
 ## to do
 
+- readme
+  - take new gifs of the 0 gen vs current best
 - fixes
   - save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
-  - make wind particles look good
+  - extend pole sprite to touch cart
+  - get wind direction arrow head to start at tip of line
+  - wind may be affecting the cart rather than the pole
+  - instead of resetting game after surpassing best by the threshold time, just save the network and continue training
+    - add a button to reset the game
 - improve algorithm
-  - Instead of counting each network as a generation, have a separate counter for "child" within a generation and only increase the "generation" when a child network improves on the previous generation
   - 1+1 ES is slow and doesn't explore the possibility space effectively "due to its single-solution nature and simple mutation operator"
   - should be easy-ish to increment complexity with parents and/or offspring strategies ($\mu + \lambda$)
 - report profiler information for using the network frame to frame
   - consider evaluating the effectiveness of the network when its reaction is inferred every other frame
+- make it more fun to engage with
+  - make wind particles look good
+  - music (trudging/ceaseless, with triumphant undertones emerging as the time increases?)
+  - sound fx
+    - wind gusts proportionate to the wind magnitude and stereo panning
+    - fanfare when the agent exceeds the high score
 
 ![profiler](export/profiler.gif)

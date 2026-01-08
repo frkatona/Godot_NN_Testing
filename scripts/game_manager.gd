@@ -93,7 +93,7 @@ func setup_ui():
 	start_y += spacing
 	
 	# 4. Wind Strength
-	create_slider.call("Wind Str: %.1f", 0.0, 100.0, 1.0, wind_strength, func(v):
+	create_slider.call("Wind Str: %.1f", 0.0, 500.0, 1.0, wind_strength, func(v):
 		wind_strength = v
 	, start_y)
 	start_y += spacing
@@ -102,10 +102,22 @@ func setup_ui():
 	create_slider.call("Wind Freq: %.3f", 0.001, 0.1, 0.001, noise_freq, func(v):
 		noise_freq = v
 	, start_y)
+	
+	start_y += spacing
+	
+	# 6. Manual Fail Button
+	var fail_btn = Button.new()
+	fail_btn.text = "Fail / Reset"
+	fail_btn.position = Vector2(20, start_y)
+	fail_btn.custom_minimum_size = Vector2(120, 30)
+	label_time.get_parent().add_child(fail_btn)
+	fail_btn.pressed.connect(func():
+		game_over()
+	)
 
-func update_stats(history: Array, gen: int):
+func update_stats(history: Array, gen: int, child_count: int = 0):
 	if label_gen:
-		label_gen.text = "Gen: %d" % gen
+		label_gen.text = "Gen: %d | Child: %d" % [gen, child_count]
 	if stats_graph:
 		stats_graph.update_data(history)
 
@@ -133,8 +145,8 @@ func _process(delta):
 	time_elapsed += delta
 	label_time.text = "Time: %.2f" % time_elapsed
 	
-	# Early Reset if we beat the high score by 10 seconds (to speed up training)
-	if high_score > 0 and time_elapsed > high_score + 10.0:
+	# Early Reset if we beat the high score by 10 minutes
+	if time_elapsed > high_score + 600.0 and high_score > 0:
 		game_over()
 		
 	check_game_over()
