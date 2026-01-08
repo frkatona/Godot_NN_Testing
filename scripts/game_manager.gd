@@ -45,26 +45,63 @@ func setup_ui():
 	stats_graph.position = Vector2(20, 140)
 	label_time.get_parent().add_child(stats_graph)
 	
-	# Create Exploration Slider
-	var slider = HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 20.0
-	slider.step = 0.2
-	slider.value = 1.0 # Default
-	slider.custom_minimum_size = Vector2(200, 20)
-	slider.position = Vector2(20, 260)
-	label_time.get_parent().add_child(slider)
+	var start_y = 240
+	var spacing = 40
 	
-	var label_slider = Label.new()
-	label_slider.text = "Exploration: 1.0"
-	label_slider.position = Vector2(20, 240)
-	label_time.get_parent().add_child(label_slider)
+	# Helper to make life easier
+	var create_slider = func(label_text, min_v, max_v, step_v, default_v, callback, y_pos):
+		var slider = HSlider.new()
+		slider.min_value = min_v
+		slider.max_value = max_v
+		slider.step = step_v
+		slider.value = default_v
+		slider.custom_minimum_size = Vector2(200, 20)
+		slider.position = Vector2(20, y_pos + 20)
+		label_time.get_parent().add_child(slider)
+		
+		var l = Label.new()
+		l.text = label_text % default_v
+		l.position = Vector2(20, y_pos)
+		label_time.get_parent().add_child(l)
+		
+		slider.value_changed.connect(func(v):
+			callback.call(v)
+			l.text = label_text % v
+		)
+		return slider
+
+	# 1. Mutation Rate
+	create_slider.call("Mut Rate: %.2f", 0.0, 1.0, 0.01, 0.2, func(v):
+		if ai_agent: ai_agent.mutation_rate = v
+	, start_y)
+	start_y += spacing
 	
-	slider.value_changed.connect(func(val):
-		if ai_agent:
-			ai_agent.mutation_power = val
-		label_slider.text = "Exploration: %.1f" % val
+	# 2. Mutation Magnitude
+	create_slider.call("Mut Mag: %.1f", 0.0, 20.0, 0.1, 0.4, func(v):
+		if ai_agent: ai_agent.mutation_magnitude = v
+	, start_y)
+	start_y += spacing
+	
+	# 3. Chaos Mode
+	var chaos_check = CheckBox.new()
+	chaos_check.text = "Chaos Mode"
+	chaos_check.position = Vector2(20, start_y)
+	label_time.get_parent().add_child(chaos_check)
+	chaos_check.toggled.connect(func(t):
+		if ai_agent: ai_agent.chaos_mode = t
 	)
+	start_y += spacing
+	
+	# 4. Wind Strength
+	create_slider.call("Wind Str: %.1f", 0.0, 100.0, 1.0, wind_strength, func(v):
+		wind_strength = v
+	, start_y)
+	start_y += spacing
+	
+	# 5. Wind Freq
+	create_slider.call("Wind Freq: %.3f", 0.001, 0.1, 0.001, noise_freq, func(v):
+		noise_freq = v
+	, start_y)
 
 func update_stats(history: Array, gen: int):
 	if label_gen:

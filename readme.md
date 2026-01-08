@@ -233,13 +233,13 @@ func _draw():
 
 - Evolution Strategy [wiki](https://en.wikipedia.org/wiki/Evolution_strategy)
 
-- palette-optimized looping gif ffmpeg commands:
+- current looping gif ffmpeg commands:
 
-create palette
+create palette from mp4
 ```bash
 ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -vf "fps=15,scale=640:-1:flags=lanczos,palettegen" palette.png
 ```
-create gif
+create gif from palette and mp4 (15 fps, looping)
 ```bash
 ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=640:-1:flags=lanczos,paletteuse" -loop 0 output.gif
 ```
@@ -252,7 +252,10 @@ ffmpeg -ss 00:00:00 -to 00:00:07 -i input.mp4 -i palette.png -filter_complex "fp
   - save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
   - make wind particles look good
 - improve algorithm
+  - Instead of counting each network as a generation, have a separate counter for "child" within a generation and only increase the "generation" when a child network improves on the previous generation
   - 1+1 ES is slow and doesn't explore the possibility space effectively "due to its single-solution nature and simple mutation operator"
   - should be easy-ish to increment complexity with parents and/or offspring strategies ($\mu + \lambda$)
 - report profiler information for using the network frame to frame
   - consider evaluating the effectiveness of the network when its reaction is inferred every other frame
+
+![profiler](export/profiler.gif)

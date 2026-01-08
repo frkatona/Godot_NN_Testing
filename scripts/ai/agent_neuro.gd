@@ -12,7 +12,10 @@ var best_fitness: float = 0.0
 var generation: int = 1
 var save_path = "user://best_ai_v2.json"
 var enabled: bool = true
-var mutation_power: float = 0.4
+var mutation_magnitude: float = 0.4
+var mutation_rate: float = 0.2
+var chaos_mode: bool = false
+
 
 signal history_updated(history: Array[float], gen: int)
 var fitness_history: Array[float] = []
@@ -100,7 +103,15 @@ func evaluate_fitness(fitness: float):
 	# Prepare next agent: (1+1) ES strategy
 	# Always mutate from BEST
 	current_network = best_network.copy()
-	current_network.mutate(0.2, mutation_power) # Rate, Magnitude
+	
+	var rate = mutation_rate
+	var mag = mutation_magnitude
+	
+	if chaos_mode:
+		rate = 0.8
+		mag = 10.0
+		
+	current_network.mutate(rate, mag) # Rate, Magnitude
 	
 	generation += 1
 
