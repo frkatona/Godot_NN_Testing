@@ -19,6 +19,9 @@ var wind_noise: FastNoiseLite
 var wind_strength: float = 1.0
 var noise_freq: float = 0.03
 var wind_vis: Node2D
+var sfx_wind: AudioStreamPlayer
+var sfx_fail: AudioStreamPlayer
+var sfx_success: AudioStreamPlayer
 const WindVisualizerScript = preload("res://scripts/visuals/wind_visualizer.gd")
 
 func _ready():
@@ -30,8 +33,31 @@ func _ready():
 	wind_vis = WindVisualizerScript.new()
 	add_child(wind_vis)
 	
+	setup_audio()
 	setup_ui()
 	reset_game()
+
+func setup_audio():
+	# Wind
+	sfx_wind = AudioStreamPlayer.new()
+	var wind_stream = preload("res://assets/sfx/wind.wav")
+	# Try to set loop mode if it's a WAV stream, otherwise we might need to re-trigger
+	if wind_stream is AudioStreamWAV:
+		wind_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	sfx_wind.stream = wind_stream
+	sfx_wind.volume_db = -80.0
+	add_child(sfx_wind)
+	sfx_wind.play()
+	
+	# Fail
+	sfx_fail = AudioStreamPlayer.new()
+	sfx_fail.stream = preload("res://assets/sfx/fail.mp3")
+	add_child(sfx_fail)
+	
+	# Success
+	sfx_success = AudioStreamPlayer.new()
+	sfx_success.stream = preload("res://assets/sfx/success.mp3")
+	add_child(sfx_success)
 
 func setup_ui():
 	# Create Gen Label
@@ -132,6 +158,17 @@ func _physics_process(delta):
 	
 	if wind_vis:
 		wind_vis.update_wind(force_x)
+		
+	# Update Wind Audio
+	if sfx_wind:
+		# Map force magnitude to volume (max wind sound should trigger >=300)
+		var wind_ratio = clamp(abs(force_x) / 300, 0.0, 1.0)
+		# -40dB (quiet) to 0dB (loud). -80 is silent.
+		# Let's try dynamic range: -60 minimum, up to 0 max
+		var target_db = lerp(-30.0, 10.0, wind_ratio)
+		if wind_ratio < 0.01:
+			target_db = -80.0
+		sfx_wind.volume_db = move_toward(sfx_wind.volume_db, target_db, delta * 30.0)
 	
 	# Apply to pole center of mass (effectively)
 	pole.apply_force(Vector2(force_x, 0))
@@ -165,11 +202,16 @@ func check_game_over():
 
 func game_over():
 	is_game_over = true
+	var current_success = false
 	if time_elapsed > high_score:
 		high_score = time_elapsed
 		label_highscore.text = "High Score: %.2f" % high_score
+		current_success = true
 	
-	# For AI training, we will need to hook here to auto-restart
+	if current_success:
+		if sfx_success: sfx_success.play()
+	else:
+		if sfx_fail: sfx_fail.play()
 	
 func reset_game():
 	is_game_over = false

@@ -272,24 +272,27 @@ ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -i palette.png -filter_complex "fp
 ## to do
 
 - readme
-  - take new gifs of the 0 gen vs current best
+  - [ ] take new gifs of the 0 gen vs current best
+  - [ ] revisit the math and verify it properly reflects the scripts (probably refactor the "matrix" math)
 - fixes
-  - save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
-  - extend pole sprite to touch cart
-  - get wind direction arrow head to start at tip of line
-  - wind may be affecting the cart rather than the pole
-  - instead of resetting game after surpassing best by the threshold time, just save the network and continue training
-    - add a button to reset the game
+  - [ ]save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
+  - extend pole sprite to touch cart without incurring collider warnings
+  - [x] get wind direction arrow head to start at tip of line
+  - [ ] do I want the wind to affect just the pole instead of the cart?
+  - [ ] instead of resetting game after surpassing best by the threshold time, just save the network and continue training
+    - [x] add a button to reset the game
 - improve algorithm
   - 1+1 ES is slow and doesn't explore the possibility space effectively "due to its single-solution nature and simple mutation operator"
   - should be easy-ish to increment complexity with parents and/or offspring strategies ($\mu + \lambda$)
-- report profiler information for using the network frame to frame
-  - consider evaluating the effectiveness of the network when its reaction is inferred every other frame
+- [x] report profiler information for using the network frame to frame
+  - [ ]consider evaluating the effectiveness of the network when its reaction is inferred every other frame
 - make it more fun to engage with
   - make wind particles look good
-  - music (trudging/ceaseless, with triumphant undertones emerging as the time increases?)
-  - sound fx
-    - wind gusts proportionate to the wind magnitude and stereo panning
-    - fanfare when the agent exceeds the high score
+  - music
+    - [x] trudging/ceaseless
+    - [ ] triumphant undertones emerging as the time increases
+  - [x] sound fx
+    - [ ] wind gusts proportionate to the wind magnitude and stereo panning
+    - [ ] fanfare when the agent exceeds the high score
 
 ![profiler](export/profiler.gif)
