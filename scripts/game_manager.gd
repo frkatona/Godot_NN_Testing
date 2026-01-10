@@ -51,11 +51,13 @@ func setup_audio():
 	# Fail
 	sfx_fail = AudioStreamPlayer.new()
 	sfx_fail.stream = preload("res://assets/sfx/fail.mp3")
+	sfx_fail.volume_db = -10.0
 	add_child(sfx_fail)
 	
 	# Success
 	sfx_success = AudioStreamPlayer.new()
 	sfx_success.stream = preload("res://assets/sfx/success.mp3")
+	sfx_success.volume_db = -20.0
 	add_child(sfx_success)
 
 func setup_ui():

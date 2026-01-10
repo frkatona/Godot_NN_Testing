@@ -10,13 +10,14 @@ func _init(sizes: Array[int]):
 	weights = []
 	biases = []
 	
-	for i in range(sizes.size() - 1):
+	# initialize weight and bias arrays for each layer
+	for layer in range(sizes.size() - 1):
 		# Weights: rows = next_layer, cols = prev_layer
-		var w = Matrix.random(sizes[i + 1], sizes[i])
+		var w = Matrix.random(sizes[layer + 1], sizes[layer])
 		weights.append(w)
 		
 		# Biases: rows = next_layer, cols = 1
-		var b = Matrix.random(sizes[i + 1], 1)
+		var b = Matrix.random(sizes[layer + 1], 1)
 		biases.append(b)
 
 func forward(input_array: Array) -> Array:
@@ -31,9 +32,8 @@ func forward(input_array: Array) -> Array:
 		z = z.add(b)
 		
 		# Activate (Sigmoid for hidden, Tanh for output effectively)
-		# For simplicity, using Tanh for all or Sigmoid for hidden
 		if i == weights.size() - 1:
-			current = z.map(Matrix.tanh_custom)
+			current = z.map(tanh)
 		else:
 			current = z.map(Matrix.sigmoid)
 			
@@ -56,7 +56,7 @@ func forward_all(input_array: Array) -> Array:
 		
 		# Activate
 		if i == weights.size() - 1:
-			current = z.map(Matrix.tanh_custom)
+			current = z.map(tanh)
 		else:
 			current = z.map(Matrix.sigmoid)
 			

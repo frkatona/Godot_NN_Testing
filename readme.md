@@ -24,9 +24,11 @@ The wind, along with the state of the network parameters, the performance histor
 
 ![gen25](export/gen25.gif)
 
-Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
+Hundreds of failures passed before the network's improvement became obvious, though the agent ultimately seemed to solve the problem (it balanced for over 5 hours before I stopped it manually and ended up losing those parameters because a network save was only coded to occur on failure).
 
-While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Further, the agent was not fed its own previous decision or the history of its state, and so for the agent to 'infer' a position in the force-pulsing cycle tick-to-tick is impressive.
+The most recent updates have moved towards improving user engagement, adding some interactive controls and audio feedback.
+
+While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Further, the agent was not fed its own previous decision or the history of its state, and so for the agent to 'infer' a position in the force-pulsing cycle tick-to-tick and oscillate appropriately at the movement output threshold exceeded my expectations.
 
 ---
 
@@ -60,18 +62,20 @@ func add(other: Array[float]) -> Array[float]:
 func map(func_ref: Callable) -> Array[float]:
     '''Applies a function to each element of the matrix (for activation functions on each activation)'''
 
+func sigmoid(x: float) -> float:
+    '''Activation function to smoothly compress hidden layer activations to [0, 1]'''
+
 func tanh(x: float) -> float:
-    '''Activation function to smoothly compress output to [-1, 1]'''
+    '''Activation function to smoothly compress output activations to [-1, 1]'''
 ```
 
-Tanh was chosen as an activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  For simplicity, the same activation is applied to the hidden layer activations as well.  It is nice that tanh is smooth and differentiable in case backpropagation becomes desirable, though it is not implemented here.
-
+Tanh was chosen as the output activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  A sigmoid was applied to the hidden layer activations.  It is nice that these functions are smooth and differentiable in case backpropagation becomes desirable, though that is not implemented here.
 
 ### 2) Define network operations with `scripts/ai/neural_network.gd`
 
 In an evolutionary algorithm, the best-performing network is copied to the next generation with a random mutation applied to it (in the form of gentle nudges to the weights and biases).  
 
-There's no method here for estimating fitness or cost, and so these mutations must be random.  The rate (the likelihood for each parameter to be nudged) and magnitude (how far they are nudged) can be modified in the code to allow the algorithm to explore the parameter space more or less aggressively.
+There's no method here for estimating fitness or cost, and so these mutations are random.  The rate (the likelihood for each parameter to be nudged) and magnitude (how far they are nudged) can be modified in the code to allow the algorithm to explore the parameter space more or less aggressively.
 
 ```gdscript
 func forward(input_array: Array) -> Array:
