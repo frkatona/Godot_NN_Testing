@@ -41,9 +41,7 @@ func setup_audio():
 	# Wind
 	sfx_wind = AudioStreamPlayer.new()
 	var wind_stream = preload("res://assets/sfx/wind.wav")
-	# Try to set loop mode if it's a WAV stream, otherwise we might need to re-trigger
-	if wind_stream is AudioStreamWAV:
-		wind_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wind_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	sfx_wind.stream = wind_stream
 	sfx_wind.volume_db = -80.0
 	add_child(sfx_wind)
@@ -75,7 +73,6 @@ func setup_ui():
 	var start_y = 240
 	var spacing = 40
 	
-	# Helper to make life easier
 	var create_slider = func(label_text, min_v, max_v, step_v, default_v, callback, y_pos):
 		var slider = HSlider.new()
 		slider.min_value = min_v

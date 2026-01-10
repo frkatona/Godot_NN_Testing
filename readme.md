@@ -12,19 +12,21 @@ Mild 'wind' is applied to the pole to prevent the agent from discovering the War
 
 The wind, along with the state of the network parameters, the performance history, and the agent's real-time reactions are represented on screen during training, alongside a few interactive controls to influence the training if desired.
 
-### Generation ~200
+### Generation 1
 
-![early gen](export/early-gen.gif)
+![gen1](export/gen01.gif)
 
-### Generation ~1000
+### Generation 15 
 
-![late gen](export/late-gen.gif)
+![gen15](export/gen15.gif)
 
-- *note that the 'generation' counter resets on relaunching the game even though the best parameters persist, so the counters in the gifs are inaccurate*
+### generation 25
+
+![gen25](export/gen25.gif)
 
 Several hundred generations passed before progress became meaningful, though the agent ultimately seemed to solve the problem, balancing for over 5 hours before I stopped it manually.  I've since increased the wind to become a more formidable obstacle.
 
-While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Furthermore, the agent was not fed its own previous decision or the history of its state, and so to infer a place in the force-pulsing cycle tick-to-tick is impressive.
+While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Further, the agent was not fed its own previous decision or the history of its state, and so for the agent to 'infer' a position in the force-pulsing cycle tick-to-tick is impressive.
 
 ---
 
@@ -250,49 +252,56 @@ func _draw():
 ```
 ---
 
-## resources
+### current 'looping gif' mp4 snip converter ffmpeg commands:
+
+create palette from mp4:
+```bash
+ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -vf "fps=15,scale=640:-1:flags=lanczos,palettegen" palette.png
+```
+create gif from palette and mp4 (10 sec, 15 fps, looping):
+```bash
+ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=640:-1:flags=lanczos,paletteuse" -loop 0 output.gif
+```
+
+- lanczos filter
+    - normalized cardinal sine (sinc) kernel (lanczos kernel)
+    - multilplied by the central lobe of horizontally stretched sinc
+
+---
+
+## other resources
 
 - Unity official [ML-Agents repo](https://github.com/Unity-Technologies/ml-agents)
 
 - Evolution Strategy [wiki](https://en.wikipedia.org/wiki/Evolution_strategy)
-
-- current 'looping gif' mp4 snip converter ffmpeg commands:
-
-create palette from mp4
-```bash
-ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -vf "fps=15,scale=640:-1:flags=lanczos,palettegen" palette.png
-```
-create gif from palette and mp4 (10 sec, 15 fps, looping)
-```bash
-ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=640:-1:flags=lanczos,paletteuse" -loop 0 output.gif
-```
 
 ---
 
 ## to do
 
 - readme
-  - [ ] take new gifs of the 0 gen vs current best
+  - [x] take new gifs of the 0 gen vs current best
   - [ ] revisit the math and verify it properly reflects the scripts (probably refactor the "matrix" math)
 - fixes
-  - [ ]save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
+  - [ ] save parameters of new best before it fails, or at least print them at start of new generation (some generations last longer than I care to wait, which is functionally perfect given the lack of calculating any cost)
   - extend pole sprite to touch cart without incurring collider warnings
   - [x] get wind direction arrow head to start at tip of line
   - [ ] do I want the wind to affect just the pole instead of the cart?
   - [ ] instead of resetting game after surpassing best by the threshold time, just save the network and continue training
     - [x] add a button to reset the game
 - improve algorithm
-  - 1+1 ES is slow and doesn't explore the possibility space effectively "due to its single-solution nature and simple mutation operator"
-  - should be easy-ish to increment complexity with parents and/or offspring strategies ($\mu + \lambda$)
+  - [ ] add reward for minimizing pole angle
+  - [ ] parents/offspring strategies ($\mu + \lambda$)
+    - 1+1 ES is slow and doesn't explore the possibility space effectively "due to its single-solution nature and simple mutation operator"
 - [x] report profiler information for using the network frame to frame
   - [ ]consider evaluating the effectiveness of the network when its reaction is inferred every other frame
 - make it more fun to engage with
-  - make wind particles look good
   - music
     - [x] trudging/ceaseless
     - [ ] triumphant undertones emerging as the time increases
   - [x] sound fx
-    - [ ] wind gusts proportionate to the wind magnitude and stereo panning
-    - [ ] fanfare when the agent exceeds the high score
+    - [x] wind gusts proportionate to the wind magnitude and stereo panning
+    - [x] 'fanfare' when the agent exceeds the high score
+- [ ] hide UI/controls under a 'show controls' button
 
 ![profiler](export/profiler.gif)
