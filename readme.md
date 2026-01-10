@@ -287,7 +287,7 @@ ffmpeg -ss 00:00:00 -to 00:00:10 -i input.mp4 -i palette.png -filter_complex "fp
   - extend pole sprite to touch cart without incurring collider warnings
   - [x] get wind direction arrow head to start at tip of line
   - [ ] do I want the wind to affect just the pole instead of the cart?
-  - [ ] instead of resetting game after surpassing best by the threshold time, just save the network and continue training
+  - [x] instead of resetting game after surpassing best by the threshold time, just save the network and continue training
     - [x] add a button to reset the game
 - improve algorithm
   - [ ] add reward for minimizing pole angle

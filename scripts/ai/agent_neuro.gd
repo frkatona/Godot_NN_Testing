@@ -92,7 +92,7 @@ func _process(delta):
 	if not enabled:
 		return
 
-	# janky save as fitness exceeds best_fitness (each delta for 1 sec) to prevent perfect solution from escaping save without forcing a reset
+	# janky network save when fitness exceeds best (each delta for 1 sec) just to prevent perfect solution from escaping save without forcing a reset
 	if game_manager.time_elapsed > best_fitness + 10 and game_manager.time_elapsed < best_fitness + 11:
 		best_fitness = game_manager.time_elapsed
 		current_network.save(save_path)
