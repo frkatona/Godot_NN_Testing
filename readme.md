@@ -1,6 +1,6 @@
 # Genetic Mutation Self-Balancing in Godot
 
-A simple evolutionary neural network approach to the 'pole and cart' self-balancing problem, implemented in Godot.
+A simple evolutionary neural network approach to the 'pole and cart' self-balancing problem, implemented in Godot.  Try the web build [here](https://frkatona.github.io/projects/Pole-Cart-Godot/index.html).
 
 ---
 
@@ -28,7 +28,7 @@ Hundreds of failures passed before the network's improvement became obvious, tho
 
 The most recent updates have moved towards improving user engagement, adding some interactive controls and audio feedback.
 
-While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Further, the agent was not fed its own previous decision or the history of its state, and so for the agent to 'infer' a position in the force-pulsing cycle tick-to-tick and oscillate appropriately at the movement output threshold exceeded my expectations.
+While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Further, the agent was not fed its own previous decision or the history of its state, and so for the agent to 'infer' a position in the force-pulsing cycle tick-to-tick and oscillate appropriately its output at the movement threshold exceeded my expectations.
 
 ---
 
@@ -40,13 +40,13 @@ The Godot engine has some built in matrix math, but not for arbitrary dimensions
 
 $$a_i = \phi(Wa_{i-1} + b),$$
 
-$$a_i = \text{activation vector}$$
+$$a_i \rightarrow \text{ activation vector}$$
 
-$$\phi = \text{activation function}$$
+$$\phi \rightarrow \text{ activation function}$$
 
-$$W=  \text{weight matrix}$$
+$$W \rightarrow \text{ weight matrix}$$
 
-$$b_i=  \text{bias vector}$$
+$$b_i \rightarrow \text{bias vector}$$
 
 is unsupported.  There's a "MatrixCalc" addon in the Asset Library which seems to perform the relevant operations on a compute shader, but I don't feel like messing with that at this stage.
 
