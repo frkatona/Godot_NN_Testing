@@ -61,34 +61,43 @@ func setup_audio():
 	add_child(sfx_success)
 
 func setup_ui():
+	var ui_root = label_time.get_parent()
+	
+	# Menu Button
+	var btn_menu = Button.new()
+	btn_menu.text = "Menu"
+	btn_menu.position = Vector2(20, 80)
+	ui_root.add_child(btn_menu)
+	
 	# Create Gen Label
 	label_gen = Label.new()
 	label_gen.text = "Gen: 1"
-	label_gen.position = Vector2(20, 100) # Below scores
-	label_time.get_parent().add_child(label_gen)
+	label_gen.position = Vector2(80, 85)
+	ui_root.add_child(label_gen)
 	
 	# Create Graph
 	stats_graph = GraphScript.new()
-	stats_graph.position = Vector2(20, 140)
-	label_time.get_parent().add_child(stats_graph)
+	stats_graph.position = Vector2(20, 120)
+	ui_root.add_child(stats_graph)
 	
-	var start_y = 240
-	var spacing = 40
+	# Settings Container
+	var settings_box = VBoxContainer.new()
+	settings_box.position = Vector2(20, 230)
+	settings_box.custom_minimum_size = Vector2(200, 0)
+	ui_root.add_child(settings_box)
 	
-	var create_slider = func(label_text, min_v, max_v, step_v, default_v, callback, y_pos):
+	var create_slider = func(label_text, min_v, max_v, step_v, default_v, callback):
+		var l = Label.new()
+		l.text = label_text % default_v
+		settings_box.add_child(l)
+		
 		var slider = HSlider.new()
 		slider.min_value = min_v
 		slider.max_value = max_v
 		slider.step = step_v
 		slider.value = default_v
 		slider.custom_minimum_size = Vector2(200, 20)
-		slider.position = Vector2(20, y_pos + 20)
-		label_time.get_parent().add_child(slider)
-		
-		var l = Label.new()
-		l.text = label_text % default_v
-		l.position = Vector2(20, y_pos)
-		label_time.get_parent().add_child(l)
+		settings_box.add_child(slider)
 		
 		slider.value_changed.connect(func(v):
 			callback.call(v)
@@ -96,49 +105,69 @@ func setup_ui():
 		)
 		return slider
 
-	# 1. Mutation Rate
+	# 1. Master Volume
+	var master_idx = AudioServer.get_bus_index("Master")
+	var vol_db = AudioServer.get_bus_volume_db(master_idx)
+	var vol_linear = db_to_linear(vol_db)
+	
+	create_slider.call("Master Vol: %.2f", 0.0, 1.0, 0.05, vol_linear, func(v):
+		var db = linear_to_db(v) if v > 0.001 else -80.0
+		AudioServer.set_bus_volume_db(master_idx, db)
+	)
+	
+	var spacer1 = Control.new()
+	spacer1.custom_minimum_size = Vector2(0, 10)
+	settings_box.add_child(spacer1)
+
+	# 2. Mutation Rate
 	create_slider.call("Mut Rate: %.2f", 0.0, 1.0, 0.01, 0.2, func(v):
 		if ai_agent: ai_agent.mutation_rate = v
-	, start_y)
-	start_y += spacing
+	)
 	
-	# 2. Mutation Magnitude
+	# 3. Mutation Magnitude
 	create_slider.call("Mut Mag: %.1f", 0.0, 20.0, 0.1, 0.4, func(v):
 		if ai_agent: ai_agent.mutation_magnitude = v
-	, start_y)
-	start_y += spacing
+	)
 	
-	# 3. Chaos Mode
+	# 4. Chaos Mode
 	var chaos_check = CheckBox.new()
 	chaos_check.text = "Chaos Mode"
-	chaos_check.position = Vector2(20, start_y)
-	label_time.get_parent().add_child(chaos_check)
+	settings_box.add_child(chaos_check)
 	chaos_check.toggled.connect(func(t):
 		if ai_agent: ai_agent.chaos_mode = t
 	)
-	start_y += spacing
 	
-	# 4. Wind Strength
+	var spacer2 = Control.new()
+	spacer2.custom_minimum_size = Vector2(0, 10)
+	settings_box.add_child(spacer2)
+	
+	# 5. Wind Strength
 	create_slider.call("Wind Str: %.1f", 0.0, 1000.0, 10.0, wind_strength, func(v):
 		wind_strength = v
-	, start_y)
-	start_y += spacing
+	)
 	
-	# 5. Wind Freq
+	# 6. Wind Freq
 	create_slider.call("Wind Freq: %.3f", 0.001, 0.1, 0.001, noise_freq, func(v):
 		noise_freq = v
-	, start_y)
+	)
 	
-	start_y += spacing
+	var spacer3 = Control.new()
+	spacer3.custom_minimum_size = Vector2(0, 10)
+	settings_box.add_child(spacer3)
 	
-	# 6. Manual Fail Button
+	# 7. Manual Fail Button
 	var fail_btn = Button.new()
 	fail_btn.text = "Fail"
-	fail_btn.position = Vector2(20, start_y)
-	fail_btn.custom_minimum_size = Vector2(120, 30)
-	label_time.get_parent().add_child(fail_btn)
+	settings_box.add_child(fail_btn)
 	fail_btn.pressed.connect(func():
 		game_over()
+	)
+	
+	# Toggle Logic
+	btn_menu.pressed.connect(func():
+		var is_vis = not settings_box.visible
+		settings_box.visible = is_vis
+		if stats_graph: stats_graph.visible = is_vis
 	)
 
 func update_stats(history: Array, gen: int, child_count: int = 0):
