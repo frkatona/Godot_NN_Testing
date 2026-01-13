@@ -20,25 +20,6 @@ func _init(sizes: Array[int]):
 		var b = Matrix.random(sizes[layer + 1], 1)
 		biases.append(b)
 
-func forward(input_array: Array) -> Array:
-	var current = Matrix.from_array(input_array.size(), 1, input_array)
-	
-	for i in range(weights.size()):
-		var w = weights[i]
-		var b = biases[i]
-		
-		# Z = W * X + B
-		var z = Matrix.dot(w, current)
-		z = z.add(b)
-		
-		# Activate (Sigmoid for hidden, Tanh for output effectively)
-		if i == weights.size() - 1:
-			current = z.map(tanh)
-		else:
-			current = z.map(Matrix.sigmoid)
-			
-	return Matrix.to_array(current)
-
 func forward_all(input_array: Array) -> Array:
 	var activations = []
 	
@@ -51,8 +32,8 @@ func forward_all(input_array: Array) -> Array:
 		var b = biases[i]
 		
 		# Z = W * X + B
-		var z = Matrix.dot(w, current)
-		z = z.add(b)
+		var z = Matrix.multiply(w, current)
+		z = z.bias(b)
 		
 		# Activate
 		if i == weights.size() - 1:

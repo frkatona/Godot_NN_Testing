@@ -24,26 +24,28 @@ static func random(p_rows: int, p_cols: int) -> Matrix:
 		m.data[i] = randf_range(-1.0, 1.0)
 	return m
 
-static func dot(a: Matrix, b: Matrix) -> Matrix:
-	if a.cols != b.rows:
+# multiply activations by weights
+static func multiply(weights: Matrix, activations: Matrix) -> Matrix:
+	if weights.cols != activations.rows:
 		push_error("Matrix dimension mismatch for dot product")
 		return null
-	var result = Matrix.new(a.rows, b.cols)
-	for r in range(a.rows):
-		for c in range(b.cols):
+	var result = Matrix.new(weights.rows, activations.cols)
+	for r in range(weights.rows):
+		for c in range(activations.cols):
 			var sum = 0.0
-			for k in range(a.cols):
-				sum += a.get_val(r, k) * b.get_val(k, c)
+			for k in range(weights.cols):
+				sum += weights.get_val(r, k) * activations.get_val(k, c)
 			result.set_val(r, c, sum)
 	return result
 
-func add(other: Matrix) -> Matrix:
-	if rows != other.rows or cols != other.cols:
+# add bias to z
+func bias(bias_array: Matrix) -> Matrix:
+	if rows != bias_array.rows or cols != bias_array.cols:
 		push_error("Matrix dimension mismatch for add")
 		return null
 	var result = Matrix.new(rows, cols)
 	for i in range(data.size()):
-		result.data[i] = data[i] + other.data[i]
+		result.data[i] = data[i] + bias_array.data[i]
 	return result
 
 func map(func_ref: Callable) -> Matrix:
@@ -76,9 +78,6 @@ static func relu(x: float) -> float:
 
 static func d_relu(x: float) -> float:
 	return 1.0 if x > 0.0 else 0.0
-
-static func tanh_custom(x: float) -> float:
-	return tanh(x)
 
 ## Converts the matrix data into a flat array.
 static func to_array(m: Matrix) -> Array:

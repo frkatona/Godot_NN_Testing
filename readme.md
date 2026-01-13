@@ -26,15 +26,15 @@ The wind, along with the state of the network parameters, the performance histor
 
 Hundreds of failures passed before the network's improvement became obvious, though the agent ultimately seemed to solve the problem (it balanced for over 5 hours before I stopped it manually and ended up losing those parameters because a network save was only coded to occur on failure).
 
-The most recent updates have moved towards improving user engagement, adding some interactive controls and audio feedback.
-
 While I initially considered the agent to be laughably slow in progress, I realized in hindsight that the problem was much harder in this implementation than I intended.  The agent only has three choices: apply force to the left, apply force to the right, or do nothing.  Importantly, that force is discrete rather than continuous, and so the agent learned to pulse its force application to carefully counteract the pole's tilt, while simultaneously avoiding the accumulation of excessive momentum in the opposite direction.  Further, the agent was not fed its own previous decision or the history of its state, and so for the agent to 'infer' a position in the force-pulsing cycle tick-to-tick and oscillate appropriately its output at the movement threshold exceeded my expectations.
+
+The most recent updates have moved towards improving user engagement, adding some interactive controls and audio feedback.
 
 ---
 
 ## Scripts Description
 
-### 1) Define matrix operations with `scripts/math/matrix.gd`
+### 1) Define matrix class operations with `scripts/math/matrix.gd`
 
 The Godot engine has some built in matrix math, but not for arbitrary dimensions.  As such, doing the vectorized math for activations in a given layer of a neural network, i.e.,
 
@@ -53,14 +53,13 @@ is unsupported.  There's a "MatrixCalc" addon in the Asset Library which seems t
 Some of the functions here are named to reflect vectorized matrix operations, but they are all loops under-the-hood.
 
 ```gdscript
-func dot(a: Array[float], b: Array[float]) -> float:
-    '''Determine the dot product of two vectors (for multiplying the weight matrix and the activation vector)'''
+class_name Matrix
 
-func add(other: Array[float]) -> Array[float]:
-    '''Add another matrix to current matrix (for adding biases to activations)'''
+func multiply(weights: Matrix, activations: Matrix) -> Matrix:
+    '''Multiply layer activations by weight matrix'''
 
-func map(func_ref: Callable) -> Array[float]:
-    '''Applies a function to each element of the matrix (for activation functions on each activation)'''
+func bias(bias_array: Matrix) -> Matrix:
+    '''Add biases to activations'''
 
 func sigmoid(x: float) -> float:
     '''Activation function to smoothly compress hidden layer activations to [0, 1]'''
@@ -71,13 +70,15 @@ func tanh(x: float) -> float:
 
 Tanh was chosen as the output activation function simply because its range conveniently maps to the cart controller's intended input range of [-1, 1].  A sigmoid was applied to the hidden layer activations.  It is nice that these functions are smooth and differentiable in case backpropagation becomes desirable, though that is not implemented here.
 
-### 2) Define network operations with `scripts/ai/neural_network.gd`
+### 2) Define network class operations with `scripts/ai/neural_network.gd`
 
 In an evolutionary algorithm, the best-performing network is copied to the next generation with a random mutation applied to it (in the form of gentle nudges to the weights and biases).  
 
-There's no method here for estimating fitness or cost, and so these mutations are random.  The rate (the likelihood for each parameter to be nudged) and magnitude (how far they are nudged) can be modified in the code to allow the algorithm to explore the parameter space more or less aggressively.
+There's no method here for estimating fitness or cost, and so these mutations are random.  The mutation rate (the likelihood for each parameter to be nudged) and mutation magnitude (how far they are nudged) can be modified with sliders in the UI to allow the algorithm to explore the parameter space more or less aggressively.
 
 ```gdscript
+class_name NeuralNetwork
+
 func forward(input_array: Array) -> Array:
  '''Forward pass through the network (input game state, process it, output reaction)'''
 
@@ -100,8 +101,14 @@ The 'current best' parameters are saved to a .json with the following structure:
     "best_time": 0.0,
     "sizes": [4, 6, 1],
     "weights": [
-        [1.5, -2.0, 8.0, -0.5],
-        [2.5, 2.0, -1.0, 5.5]
+        [
+            [1.5, -2.0, 8.0, -0.5, ...],
+            [2.5, 2.0, -1.0, 5.5, ...]
+        ],
+        [
+            [8.0, -0.5, 1.5, -2.0, ...],
+            [-1.0, 5.5, 2.5, 2.0, ...]
+        ],
     ],
     "biases": [
         [-5.0, 5.0, 2.4, 4.9, -0.5, 0.7],
